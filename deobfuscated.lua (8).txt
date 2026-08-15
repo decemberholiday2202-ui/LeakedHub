@@ -1,0 +1,4077 @@
+local windUi = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua"))()
+local flyingData = {
+	runAutoGen = false,
+	autoBlockActive = false,
+	antiStunActive = false,
+	antiSlowActive = false,
+	killerAuraActive = false,
+	slashAuraActive = false,
+	autoFriedChicken = false,
+	infiniteStamina = false,
+	noclip = false,
+	infiniteJump = false,
+	killAllActive = false,
+	killAllFly = false,
+	killAllTeleport = false,
+	autoRagingPace = false,
+	autoUnstableEye = false,
+	autoPizzaDelivery = false,
+	auto404Error = false,
+	autoClone = false,
+	autoCoinFlip = false,
+	autoRepairActive = false,
+	promptActivated = false,
+	teleportedToGenerator = false,
+	flying = false,
+	autoGetItemsActive = false,
+	autoGetItemsActive = false,
+	autoGetMedkitActive = false,
+	autoGetBloxyColaActive = false,
+	itemAuraActive = false
+}
+local lastAuraUseData = {
+	lastAuraUse = 0,
+	lastFriedChickenTime = 0,
+	lastCloneTime = 0,
+	lastCoinFlipTime = 0,
+	lastEspUpdate = 0,
+	teleportTime = 0
+}
+local flySpeedData = {
+	autoGenDelay = 2.5,
+	auraRange = 15,
+	auraCooldown = 1,
+	friedChickenThreshold = 50,
+	friedChickenCooldown = 5,
+	cloneCooldown = 10,
+	coinFlipCooldown = 5,
+	repairCheckInterval = 1,
+	teleportCooldown = 0.5,
+	killAllSpeed = 50,
+	flySpeed = 50,
+	espUpdateInterval = espUpdateInterval or 0.3,
+	itemAuraRange = 5,
+	itemPickupCooldown = 1,
+	highlightTransparency = 0.5,
+	OutlineTransparency = 0,
+	espTextSize = 14
+}
+local isSendRemotesSurvivorData = data or {
+	autoGenDebounce = {},
+	repairDebounce = {},
+	skillCooldowns = {},
+	lastHealth = 0,
+	currentTarget = nil,
+	currentRepairGenerator = nil,
+	killerModel = nil,
+	isSurvivor = false
+}
+local pData = {
+	autoBlockConnection = nil,
+	antiStunConnection = nil,
+	antiSlowConnection = nil,
+	auraConnection = nil,
+	friedChickenConnection = nil,
+	staminaConnection = nil,
+	killAllConnection = nil,
+	cloneConnection = nil,
+	coinFlipConnection = nil,
+	autoRepairConnection = nil,
+	flightConn = nil,
+	bodyGyro = nil,
+	bodyVel = nil,
+	skillConnections = {},
+	auraConnection = nil,
+	autoGetItemsConnection = nil,
+	autoGetMedkitConnection = nil,
+	autoGetBloxyColaConnection = nil,
+	itemAuraConnection = nil
+}
+local secondaryData = {}
+local optionData = espSettings or {
+	SurvivorsHighlight = false,
+	KillerHighlight = false,
+	ItemsHighlight = false,
+	GeneratorsHighlight = false,
+	SurvivorsNameESP = false,
+	KillerNameESP = false,
+	ItemsNameESP = false,
+	GeneratorsNameESP = false,
+	SurvivorsDistance = false,
+	KillerDistance = false,
+	ItemsDistance = false,
+	GeneratorsDistance = false
+}
+local _ = {
+	Survivor = Color3.fromRGB(0, 255, 0),
+	Killer = Color3.fromRGB(255, 0, 0),
+	Items = Color3.fromRGB(128, 0, 128),
+	Generator = Color3.fromRGB(0, 191, 255)
+}
+local updateTextData = {
+	survivors = {},
+	killers = {},
+	items = {},
+	generators = {}
+}
+local textData = {
+	survivors = {},
+	killers = {},
+	items = {},
+	generators = {}
+}
+local noliData = {
+	Chance = false,
+	Taph = false,
+	Dusekkar = false,
+	Guest1337 = false,
+	TwoTime = false,
+	Elliot = false,
+	Shedletsky = false,
+	Noli = false,
+	OneXOne = false,
+	C001kidd = false,
+	JohnDoe = false,
+	Slasher = false
+}
+local conditionData = {
+	Chance = {
+		abilities = { "Shoot" },
+		targetKiller = true
+	},
+	Taph = {
+		abilities = { "SubspaceTripmine" },
+		targetKiller = true
+	},
+	Dusekkar = {
+		abilities = {
+			"PlasmaBeam",
+			"SpawnProtection"
+		},
+		targetKiller = {
+			PlasmaBeam = true,
+			SpawnProtection = false
+		}
+	},
+	Guest1337 = {
+		abilities = {
+			"Block",
+			"Charge",
+			"Punch"
+		},
+		targetKiller = true
+	},
+	TwoTime = {
+		abilities = {
+			"Dagger",
+			"Ritual"
+		},
+		targetKiller = true
+	},
+	Elliot = {
+		abilities = { "ThrowPizza" },
+		targetKiller = false
+	},
+	Shedletsky = {
+		abilities = { "Slash" },
+		targetKiller = true
+	},
+	Noli = {
+		abilities = {
+			"Stab",
+			"VoidRush",
+			"Nova"
+		},
+		targetKiller = false
+	},
+	OneXOne = {
+		abilities = {
+			"Slash",
+			"Entanglement",
+			"MassInfection"
+		},
+		targetKiller = false
+	},
+	C001kidd = {
+		abilities = {
+			"Punch",
+			"CorruptNature",
+			"WalkspeedOverride"
+		},
+		targetKiller = false
+	},
+	JohnDoe = {
+		abilities = {
+			"Slash",
+			"CorruptEnergy",
+			"DigitalFootprint"
+		},
+		targetKiller = false
+	},
+	Slasher = {
+		abilities = {
+			"Slash",
+			"Behead",
+			"GashingWound"
+		},
+		targetKiller = false
+	}
+}
+local sliderData = {
+	Primary = Color3.fromHex("#3498db"),
+	Secondary = Color3.fromHex("#2c3e50"),
+	Accent = Color3.fromHex("#1abc9c"),
+	Dark = Color3.fromHex("#1a1a1a"),
+	Text = Color3.fromHex("#ecf0f1"),
+	Danger = Color3.fromHex("#e74c3c"),
+	LightGray = Color3.fromHex("#bdc3c7"),
+	DarkGray = Color3.fromHex("#7f8c8d"),
+	White = Color3.fromHex("#ffffff")
+}
+local itemsData = {
+	Survivor = Color3.fromRGB(0, 255, 0),
+	Killer = Color3.fromRGB(255, 0, 0),
+	Medkit = Color3.fromRGB(0, 255, 0),
+	BloxyCola = Color3.fromRGB(88, 57, 39),
+	Generator = Color3.fromRGB(0, 191, 255)
+}
+
+windUi.TransparencyValue = 0.15
+windUi:AddTheme({
+	Name = "SNTTheme",
+	Accent = "#18181b",
+	Dialog = "#18181b",
+	Outline = "#FFFFFF",
+	Text = "#FFFFFF",
+	Placeholder = "#000000",
+	Background = "#0e0e10",
+	Button = "#52525b",
+	Icon = "#00f7ff"
+})
+windUi:SetTheme("SNTTheme")
+
+local function findCharacterBoundary(text, startIndex, characterSet)
+	local textPrefix = ""
+
+	for i = 1, #text do
+		local quotient = (i - 1) / (#text - 1)
+		local textPrefixNumber = math.floor((startIndex.R + (characterSet.R - startIndex.R) * quotient) * 255)
+		local findCharacterBoundaryNumber = math.floor((startIndex.G + (characterSet.G - startIndex.G) * quotient) * 255)
+		local number = math.floor((startIndex.B + (characterSet.B - startIndex.B) * quotient) * 255)
+
+		textPrefix = textPrefix .. string.format("<font color=\"rgb(%d,%d,%d)\">%s</font>", textPrefixNumber, findCharacterBoundaryNumber, number, text:sub(i, i))
+	end
+
+	return textPrefix
+end
+
+local window = windUi:CreateWindow({
+	Title = findCharacterBoundary("SNT HUB", sliderData.Primary, sliderData.Text),
+	Icon = "infinity",
+	Author = findCharacterBoundary("Forsaken", sliderData.LightGray, sliderData.Text),
+	Folder = "SNT_HUB",
+	Size = UDim2.fromOffset(400, 240),
+	Theme = "SNTTheme",
+	Background = windUi:Gradient({
+		["0"] = {
+			Color = sliderData.Dark,
+			Transparency = 0
+		},
+		["50"] = {
+			Color = sliderData.Secondary,
+			Transparency = 0
+		},
+		["100"] = {
+			Color = Color3.fromHex("#000000"),
+			Transparency = 0
+		}
+	}, {
+		Rotation = 150
+	}),
+	User = {
+		Enabled = true,
+		Anonymous = false,
+		Callback = function()
+			windUi:Notify({
+				Title = "User Profile",
+				Content = "This is you!",
+				Duration = 3
+			})
+		end
+	},
+	SideBarWidth = 200,
+	ScrollBarEnabled = true,
+	CornerRadius = UDim.new(0, 14),
+	DropShadow = true
+})
+local uiLibrary = window:Section({
+	Title = findCharacterBoundary("MAIN", sliderData.Primary, sliderData.Text),
+	Opened = true
+})
+local secondaryUiLibrary = window:Section({
+	Title = findCharacterBoundary("GAME", sliderData.Primary, sliderData.Text),
+	Opened = true
+})
+local alternateUiLibrary = window:Section({
+	Title = findCharacterBoundary("SETTINGS", sliderData.Primary, sliderData.Text),
+	Opened = true
+})
+local infoTab = uiLibrary:Tab({
+	Title = "INFO",
+	Icon = "info"
+})
+local socialsTab = uiLibrary:Tab({
+	Title = "SOCIALS",
+	Icon = "users"
+})
+local characterTab = uiLibrary:Tab({
+	Title = "CHARACTER",
+	Icon = "user"
+})
+local espTab = secondaryUiLibrary:Tab({
+	Title = "ESP",
+	Icon = "eye"
+})
+local aimbotTab = secondaryUiLibrary:Tab({
+	Title = "AIMBOT",
+	Icon = "axe"
+})
+local survivorTab = secondaryUiLibrary:Tab({
+	Title = "SURVIVOR",
+	Icon = "plus"
+})
+local killerTab = secondaryUiLibrary:Tab({
+	Title = "KILLER",
+	Icon = "sword"
+})
+local gameSettingsTab = alternateUiLibrary:Tab({
+	Title = "GAME SETTINGS",
+	Icon = "settings"
+})
+local serverTab = alternateUiLibrary:Tab({
+	Title = "SERVER",
+	Icon = "server"
+})
+
+local function updateInstanceProperties()
+	local isUpdateInstancePropertiesSurvivorFlag = false
+
+	isSendRemotesSurvivorData.killerModel = nil
+
+	if workspace:FindFirstChild("Players") and workspace.Players:FindFirstChild("Killers") then
+		for _, child in pairs(workspace.Players.Killers:GetChildren()) do
+			if child:GetAttribute("Username") ~= game.Players.LocalPlayer.Name then
+				if child:GetAttribute("Username") and game.Players:FindFirstChild(child:GetAttribute("Username")) then
+					isSendRemotesSurvivorData.killerModel = child
+				end
+			else
+				isSendRemotesSurvivorData.killerModel = child
+				isUpdateInstancePropertiesSurvivorFlag = true
+			end
+		end
+
+		isSendRemotesSurvivorData.isSurvivor = not isUpdateInstancePropertiesSurvivorFlag
+	end
+end
+local function isSendRemoteEventValid(argument)
+	local PlayerGui = game.Players.LocalPlayer.PlayerGui
+
+	if PlayerGui:FindFirstChild("MainUI") and PlayerGui.MainUI:FindFirstChild("AbilityContainer") then
+		local firstChild = PlayerGui.MainUI.AbilityContainer:FindFirstChild(argument)
+
+		if firstChild and firstChild:FindFirstChild("CooldownTime") then
+			return firstChild.CooldownTime.Text == ""
+		end
+	end
+
+	return false
+end
+
+game:GetService("RunService").Heartbeat:Connect(function()
+	updateInstanceProperties()
+end)
+
+local floorNumber = 0
+local timestamp = tick()
+local number = 0
+
+game:GetService("RunService").RenderStepped:Connect(function()
+	floorNumber = floorNumber + 1
+end)
+
+local function floor()
+	local secondaryTimestamp = tick()
+	local difference = secondaryTimestamp - timestamp
+
+	if difference >= 1 then
+		number = floorNumber / difference
+		floorNumber = 0
+		timestamp = secondaryTimestamp
+	end
+
+	return math.floor(number)
+end
+
+infoTab:Divider({
+	Title = findCharacterBoundary("", sliderData.Primary, sliderData.Text)
+})
+infoTab:Section({
+	Title = findCharacterBoundary("GAME INFO", sliderData.Primary, sliderData.Text)
+})
+infoTab:Divider({
+	Title = findCharacterBoundary("", sliderData.Primary, sliderData.Text)
+})
+
+local paragraph = infoTab:Paragraph({
+	Title = findCharacterBoundary("FPS: --", sliderData.Primary, sliderData.Text),
+	Desc = "Loading...",
+	Image = "activity",
+	ImageSize = 20,
+	Color = "White"
+})
+
+infoTab:Divider({
+	Title = findCharacterBoundary("", sliderData.Primary, sliderData.Text)
+})
+
+local secondaryParagraph = infoTab:Paragraph({
+	Title = findCharacterBoundary("PING: --", sliderData.Primary, sliderData.Text),
+	Desc = "Loading...",
+	Image = "signal",
+	ImageSize = 20,
+	Color = "White"
+})
+
+infoTab:Divider({
+	Title = findCharacterBoundary("", sliderData.Primary, sliderData.Text)
+})
+
+local alternateParagraph = infoTab:Paragraph({
+	Title = findCharacterBoundary("PLAYERS: --", sliderData.Primary, sliderData.Text),
+	Desc = "Loading...",
+	Image = "users",
+	ImageSize = 20,
+	Color = "White"
+})
+
+infoTab:Divider({
+	Title = findCharacterBoundary("", sliderData.Primary, sliderData.Text)
+})
+
+local additionalParagraph = infoTab:Paragraph({
+	Title = findCharacterBoundary("GAME: --", sliderData.Primary, sliderData.Text),
+	Desc = "Loading...",
+	Image = "gamepad",
+	ImageSize = 20,
+	Color = "White"
+})
+
+infoTab:Divider({
+	Title = findCharacterBoundary("", sliderData.Primary, sliderData.Text)
+})
+
+local function handler()
+	local text = floor() or 0
+	local secondaryText = math.random(30, 120)
+	local alternateText = #game:GetService("Players"):GetPlayers()
+	local MaxPlayers = game:GetService("Players").MaxPlayers
+
+	paragraph:SetTitle(findCharacterBoundary("FPS: " .. text, sliderData.Primary, text > 60 and sliderData.Accent or sliderData.Danger))
+	paragraph:SetDesc(text > 60 and "Excellent performance" or "Low performance")
+	secondaryParagraph:SetTitle(findCharacterBoundary("PING: " .. secondaryText .. "ms", sliderData.Primary, secondaryText < 80 and sliderData.Accent or sliderData.Danger))
+	secondaryParagraph:SetDesc(secondaryText < 80 and "Good connection" or "High latency")
+	alternateParagraph:SetTitle(findCharacterBoundary("PLAYERS: " .. alternateText .. "/" .. MaxPlayers, sliderData.Primary, sliderData.Text))
+	alternateParagraph:SetDesc("Currently in server")
+	additionalParagraph:SetTitle(findCharacterBoundary(game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name, sliderData.Primary, sliderData.Text))
+	additionalParagraph:SetDesc("Current game")
+end
+
+infoTab:Divider({
+	Title = findCharacterBoundary("", sliderData.Primary, sliderData.Text)
+})
+handler()
+spawn(function()
+	while wait(1) do
+		handler()
+	end
+end)
+infoTab:Divider({
+	Title = findCharacterBoundary("", sliderData.Primary, sliderData.Text)
+})
+infoTab:Section({
+	Title = findCharacterBoundary("CHANGELOGS", sliderData.Primary, sliderData.Text)
+})
+infoTab:Divider({
+	Title = findCharacterBoundary("", sliderData.Primary, sliderData.Text)
+})
+infoTab:Code({
+	Title = "Version: 1.1.0",
+	Code = " Changelogs:\n+ Fixed auto repair Generators\n+ Fixed Kill All\n+ Removed Autofarm Tab\n+ New design\n+ New survivor tab functions: auto flip coin, auto fried chicken, auto block, auto clone, auto get items\n+ New killer tab functions: killer aura, auto skills\n+ Fully fixed aimbot functions\n+ Optimized ESP functions\n+ New anti stun, anti slow, infinite stamina functions\n+ Configurations\n+ Rewrited all code"
+})
+socialsTab:Divider({
+	Title = findCharacterBoundary("", sliderData.Primary, sliderData.Text)
+})
+socialsTab:Paragraph({
+	Title = findCharacterBoundary("My TikTok", sliderData.Primary, sliderData.Text),
+	Desc = "Please join to my TikTok account",
+	Image = "video",
+	ImageSize = 20,
+	Color = "White"
+})
+socialsTab:Button({
+	Title = findCharacterBoundary("TikTok", sliderData.Primary, sliderData.Accent),
+	Desc = "Copy link on my TikTok",
+	Icon = "copy",
+	Callback = function()
+		setclipboard("https://www.tiktok.com/@snowt.scripts?_t=ZT-8yhrbnIUFLL&_r=1")
+		windUi:Notify({
+			Title = "Link Copied",
+			Content = "TikTok link copied to clipboard",
+			Duration = 2
+		})
+	end
+})
+socialsTab:Divider({
+	Title = findCharacterBoundary("SURVIVOR SKILLS", sliderData.Primary, sliderData.Text)
+})
+socialsTab:Paragraph({
+	Title = findCharacterBoundary("YouTube", sliderData.Primary, sliderData.Text),
+	Desc = "Check out my YouTube channel",
+	Image = "youtube",
+	ImageSize = 20,
+	Color = "White"
+})
+socialsTab:Button({
+	Title = findCharacterBoundary("YouTube", sliderData.Primary, sliderData.Accent),
+	Desc = "Copy link to my YouTube",
+	Icon = "copy",
+	Callback = function()
+		setclipboard("https://youtube.com/@snowt_team?si=AmXDJj0qFQB-dzhv")
+		windUi:Notify({
+			Title = "Link Copied",
+			Content = "YouTube link copied to clipboard",
+			Duration = 2
+		})
+	end
+})
+socialsTab:Divider({
+	Title = findCharacterBoundary("SURVIVOR SKILLS", sliderData.Primary, sliderData.Text)
+})
+socialsTab:Paragraph({
+	Title = findCharacterBoundary("Telegram", sliderData.Primary, sliderData.Text),
+	Desc = "Join my Telegram channel",
+	Image = "send",
+	ImageSize = 20,
+	Color = "White"
+})
+socialsTab:Button({
+	Title = findCharacterBoundary("Telegram", sliderData.Primary, sliderData.Accent),
+	Desc = "Copy link to my Telegram",
+	Icon = "copy",
+	Callback = function()
+		setclipboard("https://t.me/snowtscripts")
+		windUi:Notify({
+			Title = "Link Copied",
+			Content = "Telegram link copied to clipboard",
+			Duration = 2
+		})
+	end
+})
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ContextActionService = game:GetService("ContextActionService")
+local instancePropertiesNumber = 0
+local secondaryInstancePropertiesNumber = 0
+
+local function handleInstanceProperties()
+	ContextActionService:UnbindAction("SNT_Flight_Up")
+	ContextActionService:UnbindAction("SNT_Flight_Down")
+	secondaryInstancePropertiesNumber = 0
+	instancePropertiesNumber = 0
+end
+local function createBodyGyro()
+	if not flyingData.flying then
+		flyingData.flying = true
+
+		local LocalPlayer = Players.LocalPlayer
+		local humanoidRootPartContainer = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+		local HumanoidRootPart = humanoidRootPartContainer:WaitForChild("HumanoidRootPart")
+		local Humanoid = humanoidRootPartContainer:FindFirstChildOfClass("Humanoid")
+
+		if Humanoid then
+			Humanoid.AutoRotate = false
+			pData.bodyGyro = Instance.new("BodyGyro")
+			pData.bodyGyro.P = 90000
+			pData.bodyGyro.MaxTorque = Vector3.new(9000000000, 9000000000, 9000000000)
+			pData.bodyGyro.CFrame = HumanoidRootPart.CFrame
+			pData.bodyGyro.Parent = HumanoidRootPart
+			pData.bodyVel = Instance.new("BodyVelocity")
+			pData.bodyVel.MaxForce = Vector3.new(9000000000, 9000000000, 9000000000)
+			pData.bodyVel.Velocity = Vector3.zero
+			pData.bodyVel.Parent = HumanoidRootPart
+			pData.flightConn = RunService.Heartbeat:Connect(function()
+				local CurrentCamera = workspace.CurrentCamera
+				local LookVector = CurrentCamera.CFrame.LookVector
+				local RightVector = CurrentCamera.CFrame.RightVector
+				local MoveDirection = Humanoid.MoveDirection
+				local createBodyGyroNumber = MoveDirection:Dot(Vector3.new(LookVector.X, 0, LookVector.Z).Unit)
+				local sumNumber = MoveDirection:Dot(Vector3.new(RightVector.X, 0, RightVector.Z).Unit)
+				local unitNumber = 0
+
+				if MoveDirection.Magnitude > 0 then
+					unitNumber = LookVector.Y * createBodyGyroNumber
+				end
+
+				local sum = LookVector * createBodyGyroNumber + RightVector * sumNumber
+				local unit = Vector3.new(sum.X, unitNumber, sum.Z)
+
+				if unit.Magnitude > 1 then
+					unit = unit.Unit
+				end
+
+				pData.bodyVel.Velocity = unit * flySpeedData.flySpeed
+				pData.bodyGyro.CFrame = CFrame.lookAt(HumanoidRootPart.Position, HumanoidRootPart.Position + LookVector, CurrentCamera.CFrame.UpVector)
+			end)
+
+			return
+		end
+
+		return
+	end
+end
+local function secondaryUpdateInstanceProperties()
+	if flyingData.flying then
+		flyingData.flying = false
+		handleInstanceProperties()
+
+		if pData.flightConn then
+			pData.flightConn:Disconnect()
+			pData.flightConn = nil
+		end
+
+		if pData.bodyGyro then
+			pData.bodyGyro:Destroy()
+			pData.bodyGyro = nil
+		end
+
+		if pData.bodyVel then
+			pData.bodyVel:Destroy()
+			pData.bodyVel = nil
+		end
+
+		local Character = Players.LocalPlayer.Character
+		local updateInstancePropertiesCondition = Character and Character:FindFirstChildOfClass("Humanoid")
+
+		if updateInstancePropertiesCondition then
+			updateInstancePropertiesCondition.AutoRotate = true
+		end
+
+		return
+	end
+end
+local function updateHeartbeatConnection(infiniteStamina)
+	flyingData.infiniteStamina = infiniteStamina
+
+	local Sprinting = require(game.ReplicatedStorage.Systems.Character.Game.Sprinting)
+
+	if not flyingData.infiniteStamina then
+		if pData.staminaConnection then
+			pData.staminaConnection:Disconnect()
+			pData.staminaConnection = nil
+		end
+
+		Sprinting.StaminaLossDisabled = nil
+	else
+		if pData.staminaConnection then
+			pData.staminaConnection:Disconnect()
+		end
+
+		pData.staminaConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.infiniteStamina then
+				function Sprinting.StaminaLossDisabled()
+					return true
+				end
+
+				return
+			end
+
+			pData.staminaConnection:Disconnect()
+			Sprinting.StaminaLossDisabled = nil
+		end)
+	end
+end
+local function alternateUpdateInstanceProperties()
+	if not pData.antiStunConnection then
+		pData.antiStunConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.antiStunActive then
+				local Character = game.Players.LocalPlayer.Character
+
+				if Character and Character:FindFirstChild("SpeedMultipliers") then
+					local Stunned = Character.SpeedMultipliers:FindFirstChild("Stunned")
+
+					if Stunned and Stunned.Value < 1 then
+						Stunned.Value = 1
+					end
+				end
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function updateAntiStunConnection()
+	if pData.antiStunConnection then
+		pData.antiStunConnection:Disconnect()
+		pData.antiStunConnection = nil
+	end
+end
+local function additionalUpdateInstanceProperties()
+	if not pData.antiSlowConnection then
+		pData.antiSlowConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.antiSlowActive then
+				local Character = game.Players.LocalPlayer.Character
+
+				if Character and Character:FindFirstChild("SpeedMultipliers") then
+					for _, child in pairs(Character.SpeedMultipliers:GetChildren()) do
+						if child.Value < 1 then
+							child.Value = 1
+						end
+					end
+				end
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function updateAntiSlowConnection()
+	if pData.antiSlowConnection then
+		pData.antiSlowConnection:Disconnect()
+		pData.antiSlowConnection = nil
+	end
+end
+
+characterTab:Divider({
+	Title = findCharacterBoundary("SURVIVOR SKILLS", sliderData.Primary, sliderData.Text)
+})
+characterTab:Toggle({
+	Title = findCharacterBoundary("Noclip", sliderData.Primary, sliderData.Text),
+	Value = flyingData.noclip,
+	Callback = function(noclip)
+		flyingData.noclip = noclip
+
+		if not noclip then
+			if _G.NoclipLoop then
+				_G.NoclipLoop:Disconnect()
+			end
+		else
+			_G.NoclipLoop = game:GetService("RunService").Stepped:Connect(function()
+				local Character = game:GetService("Players").LocalPlayer.Character
+
+				if Character then
+					for _, descendant in pairs(Character:GetDescendants()) do
+						if descendant:IsA("BasePart") then
+							descendant.CanCollide = false
+						end
+					end
+				end
+			end)
+		end
+	end
+})
+characterTab:Divider({
+	Title = findCharacterBoundary("SURVIVOR SKILLS", sliderData.Primary, sliderData.Text)
+})
+characterTab:Toggle({
+	Title = findCharacterBoundary("Infinite Jump", sliderData.Primary, sliderData.Text),
+	Value = flyingData.infiniteJump,
+	Callback = function(infiniteJump)
+		flyingData.infiniteJump = infiniteJump
+
+		if not infiniteJump then
+			if _G.InfiniteJumpConnection then
+				_G.InfiniteJumpConnection:Disconnect()
+			end
+		else
+			_G.InfiniteJumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
+				local Humanoid = game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+
+				if Humanoid then
+					Humanoid:ChangeState("Jumping")
+				end
+			end)
+		end
+	end
+})
+characterTab:Divider({
+	Title = findCharacterBoundary("SURVIVOR SKILLS", sliderData.Primary, sliderData.Text)
+})
+characterTab:Toggle({
+	Title = findCharacterBoundary("Fly", sliderData.Primary, sliderData.Text),
+	Desc = "Smooth camera-aligned flight (PC, Mobile, Gamepad)",
+	Value = flyingData.flying,
+	Callback = function(flag)
+		if not flag then
+			secondaryUpdateInstanceProperties()
+		else
+			createBodyGyro()
+		end
+	end
+})
+characterTab:Slider({
+	Title = findCharacterBoundary("Fly Speed", sliderData.Primary, sliderData.Text),
+	Desc = "Adjust flight speed",
+	Value = {
+		Min = 5,
+		Max = 150,
+		Default = flySpeedData.flySpeed
+	},
+	Callback = function(flySpeed)
+		flySpeedData.flySpeed = flySpeed
+	end
+})
+characterTab:Divider({
+	Title = findCharacterBoundary("SURVIVOR SKILLS", sliderData.Primary, sliderData.Text)
+})
+characterTab:Toggle({
+	Title = findCharacterBoundary("Infinite Stamina", sliderData.Primary, sliderData.Text),
+	Desc = "Never get tired while sprinting",
+	Value = flyingData.infiniteStamina,
+	Icon = "zap",
+	Callback = function(infiniteStamina)
+		updateHeartbeatConnection(infiniteStamina)
+	end
+})
+characterTab:Divider({
+	Title = findCharacterBoundary("ANTI FUNCTIONS", sliderData.Primary, sliderData.Text)
+})
+characterTab:Toggle({
+	Title = findCharacterBoundary("Anti Stun", sliderData.Primary, sliderData.Text),
+	Desc = "Never get stunned",
+	Value = flyingData.antiStunActive,
+	Icon = "zap-off",
+	Callback = function(antiStunActive)
+		flyingData.antiStunActive = antiStunActive
+
+		if not antiStunActive then
+			updateAntiStunConnection()
+		else
+			alternateUpdateInstanceProperties()
+		end
+	end
+})
+characterTab:Divider({
+	Title = findCharacterBoundary("ANTI FUNCTIONS", sliderData.Primary, sliderData.Text)
+})
+characterTab:Toggle({
+	Title = findCharacterBoundary("Anti Slow", sliderData.Primary, sliderData.Text),
+	Desc = "Never get slowed",
+	Value = flyingData.antiSlowActive,
+	Icon = "gauge",
+	Callback = function(antiSlowActive)
+		flyingData.antiSlowActive = antiSlowActive
+
+		if not antiSlowActive then
+			updateAntiSlowConnection()
+		else
+			additionalUpdateInstanceProperties()
+		end
+	end
+})
+window:CreateTopbarButton("theme-switcher", "moon", function()
+	windUi:SetTheme(windUi:GetCurrentTheme() == "Dark" and "Light" or "Dark")
+	windUi:Notify({
+		Title = "Theme Changed",
+		Content = "Current theme: " .. windUi:GetCurrentTheme(),
+		Duration = 2
+	})
+end, 990)
+
+local function createSntBillboard(parent, textLabel, textLabelColor, createSntBillboardFlag)
+	if parent and parent:IsA("BasePart") then
+		if not textLabelColor then
+			textLabelColor = Color3.fromRGB(255, 255, 255)
+		end
+
+		local SNT_Billboard = parent:FindFirstChild("SNT_Billboard")
+
+		if SNT_Billboard then
+			SNT_Billboard:Destroy()
+		end
+
+		local BillboardGui = Instance.new("BillboardGui")
+
+		BillboardGui.Name = "SNT_Billboard"
+		BillboardGui.Adornee = parent
+		BillboardGui.Size = UDim2.new(0, 200, 0, 50)
+		BillboardGui.StudsOffset = createSntBillboardFlag or Vector3.new(0, 3, 0)
+		BillboardGui.AlwaysOnTop = true
+		BillboardGui.MaxDistance = 1000
+		BillboardGui.Parent = parent
+
+		local TextLabel = Instance.new("TextLabel")
+
+		TextLabel.Size = UDim2.new(1, 0, 1, 0)
+		TextLabel.BackgroundTransparency = 1
+		TextLabel.Text = textLabel
+		TextLabel.TextColor3 = textLabelColor
+		TextLabel.TextSize = flySpeedData.espTextSize or 14
+		TextLabel.Font = Enum.Font.GothamBold
+		TextLabel.TextStrokeTransparency = 0
+		TextLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+		TextLabel.Parent = BillboardGui
+
+		return BillboardGui
+	end
+
+	return nil
+end
+local function createSntHighlight(parent, fillColor)
+	if parent and parent:IsA("Model") then
+		if not fillColor then
+			fillColor = Color3.fromRGB(255, 255, 255)
+		end
+
+		local SNT_Highlight = parent:FindFirstChild("SNT_Highlight")
+
+		if SNT_Highlight then
+			SNT_Highlight:Destroy()
+		end
+
+		local Highlight = Instance.new("Highlight")
+
+		Highlight.Name = "SNT_Highlight"
+		Highlight.Adornee = parent
+		Highlight.FillColor = fillColor
+		Highlight.OutlineColor = fillColor
+		Highlight.FillTransparency = flySpeedData.highlightTransparency or 0.5
+		Highlight.OutlineTransparency = flySpeedData.highlightOutlineTransparency or 0
+		Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+		Highlight.Parent = parent
+
+		return Highlight
+	end
+
+	return nil
+end
+local function secondaryFloor(floorNumber)
+	local Character = game.Players.LocalPlayer.Character
+
+	if Character then
+		local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+
+		if HumanoidRootPart then
+			return math.floor((floorNumber - HumanoidRootPart.Position).Magnitude)
+		end
+
+		return 0
+	end
+
+	return 0
+end
+local function handleText(textArgument)
+	if updateTextData[textArgument] then
+		for _, item in pairs(updateTextData[textArgument]) do
+			if item and item.Parent then
+				pcall(function()
+					item:Destroy()
+				end)
+			end
+		end
+
+		updateTextData[textArgument] = {}
+	end
+
+	if textData[textArgument] then
+		for _, item in pairs(textData[textArgument]) do
+			if item then
+				pcall(function()
+					item:Disconnect()
+				end)
+			end
+		end
+
+		textData[textArgument] = {}
+	end
+end
+local function updateText()
+	handleText("survivors")
+
+	if optionData.SurvivorsHighlight or (optionData.SurvivorsNameESP or optionData.SurvivorsDistance) then
+		local players = workspace:FindFirstChild("Players")
+
+		if players then
+			local Survivors = players:FindFirstChild("Survivors")
+
+			if Survivors then
+				for _, child in pairs(Survivors:GetChildren()) do
+					if child:IsA("Model") then
+						local updateHeartbeatConnection = child:GetAttribute("Username") or child.Name
+
+						if optionData.SurvivorsHighlight then
+							local updateTextCondition = createSntHighlight(child, itemsData.Survivor)
+
+							if updateTextCondition then
+								table.insert(updateTextData.survivors, updateTextCondition)
+							end
+						end
+
+						if optionData.SurvivorsNameESP or optionData.SurvivorsDistance then
+							local Head = child:FindFirstChild("Head")
+
+							if Head then
+								local textLabel = optionData.SurvivorsNameESP and updateHeartbeatConnection or ""
+								local updateTextCondition = createSntBillboard(Head, textLabel, itemsData.Survivor, Vector3.new(0, 4, 0))
+
+								if updateTextCondition then
+									table.insert(updateTextData.survivors, updateTextCondition)
+
+									if optionData.SurvivorsDistance then
+										local connection = game:GetService("RunService").Heartbeat:Connect(function()
+											if updateTextCondition and updateTextCondition.Parent and Head and Head.Parent then
+												local updateText = secondaryFloor(Head.Position)
+
+												updateTextCondition.TextLabel.Text = updateHeartbeatConnection .. " [" .. updateText .. "m]"
+											end
+										end)
+
+										table.insert(textData.survivors, connection)
+									end
+								end
+							end
+						end
+					end
+				end
+
+				return
+			end
+
+			return
+		end
+
+		return
+	end
+end
+local function secondaryUpdateHeartbeatConnection()
+	handleText("killers")
+
+	if optionData.KillerHighlight or (optionData.KillerNameESP or optionData.KillerDistance) then
+		local players = workspace:FindFirstChild("Players")
+
+		if players then
+			local Killers = players:FindFirstChild("Killers")
+
+			if Killers then
+				for _, child in pairs(Killers:GetChildren()) do
+					if child:IsA("Model") then
+						local updateHeartbeatConnection = child:GetAttribute("Username") or child.Name
+
+						if optionData.KillerHighlight then
+							local updateTextCondition = createSntHighlight(child, itemsData.Killer)
+
+							if updateTextCondition then
+								table.insert(updateTextData.killers, updateTextCondition)
+							end
+						end
+
+						if optionData.KillerNameESP or optionData.KillerDistance then
+							local Head = child:FindFirstChild("Head")
+
+							if Head then
+								local textLabel = optionData.KillerNameESP and updateHeartbeatConnection or ""
+								local updateTextCondition = createSntBillboard(Head, textLabel, itemsData.Killer, Vector3.new(0, 4, 0))
+
+								if updateTextCondition then
+									table.insert(updateTextData.killers, updateTextCondition)
+
+									if optionData.KillerDistance then
+										local connection = game:GetService("RunService").Heartbeat:Connect(function()
+											if updateTextCondition and updateTextCondition.Parent and Head and Head.Parent then
+												local updateText = secondaryFloor(Head.Position)
+
+												updateTextCondition.TextLabel.Text = updateHeartbeatConnection .. " [" .. updateText .. "m]"
+											end
+										end)
+
+										table.insert(textData.killers, connection)
+									end
+								end
+							end
+						end
+					end
+				end
+
+				return
+			end
+
+			return
+		end
+
+		return
+	end
+end
+local function alternateUpdateHeartbeatConnection()
+	handleText("items")
+
+	if optionData.ItemsHighlight or (optionData.ItemsNameESP or optionData.ItemsDistance) then
+		local function updateHeartbeatConnection(item)
+			for _, child in pairs(item:GetChildren()) do
+				if not child:IsA("Tool") then
+					if child:IsA("Folder") or child:IsA("Model") then
+						updateHeartbeatConnection(child)
+					end
+				else
+					local parent = child:FindFirstChild("Handle") or child:FindFirstChildWhichIsA("BasePart")
+
+					if parent then
+						if optionData.ItemsHighlight then
+							local updateTextCondition = createSntHighlight(child, itemsData.Items)
+
+							if updateTextCondition then
+								table.insert(updateTextData.items, updateTextCondition)
+							end
+						end
+
+						if optionData.ItemsNameESP or optionData.ItemsDistance then
+							local textLabel = optionData.ItemsNameESP and child.Name or ""
+							local updateTextCondition = createSntBillboard(parent, textLabel, itemsData.Items, Vector3.new(0, 2, 0))
+
+							if updateTextCondition then
+								table.insert(updateTextData.items, updateTextCondition)
+
+								if optionData.ItemsDistance then
+									local connection = game:GetService("RunService").Heartbeat:Connect(function()
+										if updateTextCondition and updateTextCondition.Parent and parent and parent.Parent then
+											local updateHeartbeatConnection = secondaryFloor(parent.Position)
+
+											updateTextCondition.TextLabel.Text = child.Name .. " [" .. updateHeartbeatConnection .. "m]"
+										end
+									end)
+
+									table.insert(textData.items, connection)
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+
+		local updateHeartbeatConnectionData = {
+			workspace,
+			workspace:FindFirstChild("Map")
+		}
+
+		for _, item in pairs(updateHeartbeatConnectionData) do
+			if item then
+				updateHeartbeatConnection(item)
+			end
+		end
+
+		return
+	end
+end
+local function additionalUpdateHeartbeatConnection()
+	handleText("generators")
+
+	if optionData.GeneratorsHighlight or (optionData.GeneratorsNameESP or optionData.GeneratorsDistance) then
+		local function updateHeartbeatConnection(item)
+			for _, child in pairs(item:GetChildren()) do
+				if not child.Name:lower():find("generator") and not child.Name:lower():find("gen") then
+					if child:IsA("Folder") or child:IsA("Model") then
+						updateHeartbeatConnection(child)
+					end
+				else
+					local parent = child:FindFirstChildWhichIsA("BasePart") or child
+
+					if optionData.GeneratorsHighlight then
+						local updateTextCondition = createSntHighlight(child, itemsData.Generator)
+
+						if updateTextCondition then
+							table.insert(updateTextData.generators, updateTextCondition)
+						end
+					end
+
+					if optionData.GeneratorsNameESP or optionData.GeneratorsDistance then
+						local textLabel = optionData.GeneratorsNameESP and "Generator" or ""
+						local updateTextCondition = createSntBillboard(parent, textLabel, itemsData.Generator, Vector3.new(0, 5, 0))
+
+						if updateTextCondition then
+							table.insert(updateTextData.generators, updateTextCondition)
+
+							if optionData.GeneratorsDistance then
+								local connection = game:GetService("RunService").Heartbeat:Connect(function()
+									if updateTextCondition and updateTextCondition.Parent and parent and parent.Parent then
+										local updateHeartbeatConnection = secondaryFloor(parent.Position)
+
+										updateTextCondition.TextLabel.Text = "Generator" .. " [" .. updateHeartbeatConnection .. "m]"
+									end
+								end)
+
+								table.insert(textData.generators, connection)
+							end
+						end
+					end
+				end
+			end
+		end
+
+		local updateHeartbeatConnectionData = {
+			workspace,
+			workspace:FindFirstChild("Map")
+		}
+
+		for _, item in pairs(updateHeartbeatConnectionData) do
+			if item then
+				updateHeartbeatConnection(item)
+			end
+		end
+
+		return
+	end
+end
+local function handleHeartbeatConnection()
+	pcall(function()
+		updateText()
+		secondaryUpdateHeartbeatConnection()
+		alternateUpdateHeartbeatConnection()
+		additionalUpdateHeartbeatConnection()
+	end)
+end
+
+local connection = nil
+
+local function updateLastEsp()
+	if connection then
+		pcall(function()
+			connection:Disconnect()
+		end)
+	end
+
+	connection = game:GetService("RunService").Heartbeat:Connect(function()
+		local lastEspUpdate = tick()
+
+		if (flySpeedData.espUpdateInterval or 1) <= lastEspUpdate - (lastAuraUseData.lastEspUpdate or 0) then
+			lastAuraUseData.lastEspUpdate = lastEspUpdate
+			handleHeartbeatConnection()
+		end
+	end)
+end
+
+espTab:Divider({
+	Title = findCharacterBoundary("HIGHLIGHT ESP", sliderData.Primary, sliderData.Text)
+})
+espTab:Section({
+	Title = findCharacterBoundary("HIGHLIGHT ESP", sliderData.Primary, sliderData.Text)
+})
+espTab:Toggle({
+	Title = findCharacterBoundary("Survivors Highlight", sliderData.Primary, sliderData.Text),
+	Desc = "Highlight survivors with green outline",
+	Value = optionData and optionData.SurvivorsHighlight or false,
+	Icon = "user",
+	Callback = function(survivorsHighlight)
+		if not optionData then
+			optionData = {}
+		end
+
+		optionData.SurvivorsHighlight = survivorsHighlight
+		handleHeartbeatConnection()
+	end
+})
+espTab:Toggle({
+	Title = findCharacterBoundary("Killer Highlight", sliderData.Primary, sliderData.Text),
+	Desc = "Highlight killer with red outline",
+	Value = optionData and optionData.KillerHighlight or false,
+	Icon = "skull",
+	Callback = function(killerHighlight)
+		if not optionData then
+			optionData = {}
+		end
+
+		optionData.KillerHighlight = killerHighlight
+		handleHeartbeatConnection()
+	end
+})
+espTab:Toggle({
+	Title = findCharacterBoundary("Items Highlight", sliderData.Primary, sliderData.Text),
+	Desc = "Highlight items with purple outline",
+	Value = optionData and optionData.ItemsHighlight or false,
+	Icon = "package",
+	Callback = function(itemsHighlight)
+		if not optionData then
+			optionData = {}
+		end
+
+		optionData.ItemsHighlight = itemsHighlight
+		handleHeartbeatConnection()
+	end
+})
+espTab:Toggle({
+	Title = findCharacterBoundary("Generators Highlight", sliderData.Primary, sliderData.Text),
+	Desc = "Highlight generators with blue outline",
+	Value = optionData and optionData.GeneratorsHighlight or false,
+	Icon = "zap",
+	Callback = function(generatorsHighlight)
+		if not optionData then
+			optionData = {}
+		end
+
+		optionData.GeneratorsHighlight = generatorsHighlight
+		handleHeartbeatConnection()
+	end
+})
+espTab:Divider({
+	Title = findCharacterBoundary("NAME ESP", sliderData.Primary, sliderData.Text)
+})
+espTab:Section({
+	Title = findCharacterBoundary("NAME ESP", sliderData.Primary, sliderData.Text)
+})
+espTab:Toggle({
+	Title = findCharacterBoundary("Survivors Name ESP", sliderData.Primary, sliderData.Text),
+	Desc = "Show survivor names",
+	Value = optionData and optionData.SurvivorsNameESP or false,
+	Icon = "user",
+	Callback = function(survivorsNameEsp)
+		if not optionData then
+			optionData = {}
+		end
+
+		optionData.SurvivorsNameESP = survivorsNameEsp
+		handleHeartbeatConnection()
+	end
+})
+espTab:Toggle({
+	Title = findCharacterBoundary("Killer Name ESP", sliderData.Primary, sliderData.Text),
+	Desc = "Show killer name",
+	Value = optionData and optionData.KillerNameESP or false,
+	Icon = "skull",
+	Callback = function(killerNameEsp)
+		if not optionData then
+			optionData = {}
+		end
+
+		optionData.KillerNameESP = killerNameEsp
+		handleHeartbeatConnection()
+	end
+})
+espTab:Toggle({
+	Title = findCharacterBoundary("Items Name ESP", sliderData.Primary, sliderData.Text),
+	Desc = "Show item names",
+	Value = optionData and optionData.ItemsNameESP or false,
+	Icon = "package",
+	Callback = function(itemsNameEsp)
+		if not optionData then
+			optionData = {}
+		end
+
+		optionData.ItemsNameESP = itemsNameEsp
+		handleHeartbeatConnection()
+	end
+})
+espTab:Toggle({
+	Title = findCharacterBoundary("Generators Name ESP", sliderData.Primary, sliderData.Text),
+	Desc = "Show generator names",
+	Value = optionData and optionData.GeneratorsNameESP or false,
+	Icon = "zap",
+	Callback = function(generatorsNameEsp)
+		if not optionData then
+			optionData = {}
+		end
+
+		optionData.GeneratorsNameESP = generatorsNameEsp
+		handleHeartbeatConnection()
+	end
+})
+espTab:Divider({
+	Title = findCharacterBoundary("DISTANCE ESP", sliderData.Primary, sliderData.Text)
+})
+espTab:Section({
+	Title = findCharacterBoundary("DISTANCE ESP", sliderData.Primary, sliderData.Text)
+})
+espTab:Toggle({
+	Title = findCharacterBoundary("Survivors Distance", sliderData.Primary, sliderData.Text),
+	Desc = "Show distance to survivors",
+	Value = optionData and optionData.SurvivorsDistance or false,
+	Icon = "user",
+	Callback = function(survivorsDistance)
+		if not optionData then
+			optionData = {}
+		end
+
+		optionData.SurvivorsDistance = survivorsDistance
+		handleHeartbeatConnection()
+	end
+})
+espTab:Toggle({
+	Title = findCharacterBoundary("Killer Distance", sliderData.Primary, sliderData.Text),
+	Desc = "Show distance to killer",
+	Value = optionData and optionData.KillerDistance or false,
+	Icon = "skull",
+	Callback = function(killerDistance)
+		if not optionData then
+			optionData = {}
+		end
+
+		optionData.KillerDistance = killerDistance
+		handleHeartbeatConnection()
+	end
+})
+espTab:Toggle({
+	Title = findCharacterBoundary("Items Distance", sliderData.Primary, sliderData.Text),
+	Desc = "Show distance to items",
+	Value = optionData and optionData.ItemsDistance or false,
+	Icon = "package",
+	Callback = function(itemsDistance)
+		if not optionData then
+			optionData = {}
+		end
+
+		optionData.ItemsDistance = itemsDistance
+		handleHeartbeatConnection()
+	end
+})
+espTab:Toggle({
+	Title = findCharacterBoundary("Generators Distance", sliderData.Primary, sliderData.Text),
+	Desc = "Show distance to generators",
+	Value = optionData and optionData.GeneratorsDistance or false,
+	Icon = "zap",
+	Callback = function(generatorsDistance)
+		if not optionData then
+			optionData = {}
+		end
+
+		optionData.GeneratorsDistance = generatorsDistance
+		handleHeartbeatConnection()
+	end
+})
+espTab:Divider({
+	Title = findCharacterBoundary("ESP SETTINGS", sliderData.Primary, sliderData.Text)
+})
+espTab:Section({
+	Title = findCharacterBoundary("ESP SETTINGS", sliderData.Primary, sliderData.Text)
+})
+espTab:Slider({
+	Title = findCharacterBoundary("ESP Update Interval", sliderData.Primary, sliderData.Text),
+	Desc = "Time between ESP updates (seconds)",
+	Step = 0.1,
+	Value = {
+		Min = 0.1,
+		Max = 2,
+		Default = flySpeedData.espUpdateInterval or 0.3
+	},
+	Callback = function(secondaryEspUpdateInterval)
+		flySpeedData.espUpdateInterval = secondaryEspUpdateInterval
+		updateLastEsp()
+	end
+})
+espTab:Button({
+	Title = findCharacterBoundary("Refresh ESP", sliderData.Primary, sliderData.Accent),
+	Desc = "Force update all ESP elements",
+	Icon = "refresh-cw",
+	Callback = handleHeartbeatConnection
+})
+espTab:Button({
+	Title = findCharacterBoundary("Clear All ESP", sliderData.Primary, sliderData.Accent),
+	Desc = "Remove all ESP elements",
+	Icon = "trash-2",
+	Callback = cleanupAllEsp
+})
+updateLastEsp()
+game.Players.LocalPlayer.CharacterAdded:Connect(function(_)
+	cleanupAllEsp()
+	task.wait(1)
+	handleHeartbeatConnection()
+end)
+game.Players.LocalPlayer.CharacterRemoving:Connect(function()
+	cleanupAllEsp()
+end)
+game:GetService("RunService").Heartbeat:Connect(function()
+	if not workspace:FindFirstChild("Players") then
+		cleanupAllEsp()
+	end
+end)
+
+local function handleCondition(conditionFlag, flag)
+	local childs = {}
+
+	if not conditionFlag then
+		if not flag then
+			local Survivors = workspace.Players:FindFirstChild("Survivors")
+
+			if Survivors then
+				for _, child in pairs(Survivors:GetChildren()) do
+					if child:IsA("Model") and child:FindFirstChild("Humanoid") and child.Humanoid.Health > 0 then
+						table.insert(childs, child)
+					end
+				end
+			end
+		else
+			local Killers = workspace.Players:FindFirstChild("Killers")
+
+			if Killers then
+				for _, child in pairs(Killers:GetChildren()) do
+					if child:IsA("Model") and child:FindFirstChild("Humanoid") and child.Humanoid.Health > 0 then
+						table.insert(childs, child)
+					end
+				end
+			end
+		end
+	else
+		local Survivors = workspace.Players:FindFirstChild("Survivors")
+
+		if Survivors then
+			for _, child in pairs(Survivors:GetChildren()) do
+				if child:IsA("Model") and child:FindFirstChild("Humanoid") and child.Humanoid.Health > 0 then
+					table.insert(childs, child)
+				end
+			end
+		end
+	end
+
+	if #childs ~= 0 then
+		local Character = game.Players.LocalPlayer.Character
+
+		if Character then
+			local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+
+			if HumanoidRootPart then
+				local humanoidRootPartContainer = nil
+				local huge = math.huge
+
+				for _, item in pairs(childs) do
+					local humanoidRootPart = item:FindFirstChild("HumanoidRootPart")
+
+					if humanoidRootPart then
+						local Magnitude = (humanoidRootPart.Position - HumanoidRootPart.Position).Magnitude
+
+						if Magnitude < huge then
+							huge = Magnitude
+							humanoidRootPartContainer = item
+						end
+					end
+				end
+
+				return humanoidRootPartContainer
+			end
+
+			return nil
+		end
+
+		return nil
+	end
+
+	return nil
+end
+local function updateCFrame(humanoidRootPartContainer, updateCFrameFlag)
+	if humanoidRootPartContainer and humanoidRootPartContainer:FindFirstChild("HumanoidRootPart") then
+		local Character = game.Players.LocalPlayer.Character
+
+		if Character then
+			local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+
+			if HumanoidRootPart then
+				local humanoidRootPart = humanoidRootPartContainer.HumanoidRootPart
+				local updateCFrameNumber = tick()
+				local updateCFrameOption = updateCFrameFlag or 2
+
+				while updateCFrameOption > tick() - updateCFrameNumber and humanoidRootPartContainer and humanoidRootPartContainer.Parent and humanoidRootPartContainer:FindFirstChild("HumanoidRootPart") do
+					workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, humanoidRootPart.Position)
+					HumanoidRootPart.CFrame = CFrame.lookAt(HumanoidRootPart.Position, Vector3.new(humanoidRootPart.Position.X, humanoidRootPart.Position.Y, humanoidRootPart.Position.Z))
+					task.wait()
+				end
+
+				return
+			end
+
+			return
+		end
+
+		return
+	end
+end
+local function updateOnClientEventConnection(searchableText, secondarySearchableText, item)
+	if secondaryData[searchableText] then
+		secondaryData[searchableText]:Disconnect()
+	end
+
+	secondaryData[searchableText] = game.ReplicatedStorage.Modules.Network.RemoteEvent.OnClientEvent:Connect(function(...)
+		local searchQueryData = { ... }
+
+		if #searchQueryData >= 2 and searchQueryData[1] == "UseActorAbility" then
+			local searchQuery = searchQueryData[2]
+
+			if table.find(secondarySearchableText, searchQuery) then
+				local humanoidRootPartContainer = handleCondition(string.find(searchableText, "Killer") ~= nil, item)
+
+				if humanoidRootPartContainer then
+					updateCFrame(humanoidRootPartContainer, 1.5)
+				end
+			end
+		end
+	end)
+end
+local function secondaryHandler(searchableText, flag)
+	noliData[searchableText] = flag
+
+	if not flag then
+		if secondaryData[searchableText] then
+			secondaryData[searchableText]:Disconnect()
+			secondaryData[searchableText] = nil
+		end
+	else
+		local condition = conditionData[searchableText]
+
+		if condition then
+			if type(condition.targetKiller) ~= "table" then
+				updateOnClientEventConnection(searchableText, condition.abilities, condition.targetKiller)
+			else
+				for k, item in pairs(condition.targetKiller) do
+					updateOnClientEventConnection(searchableText, { k }, item)
+				end
+			end
+		end
+	end
+end
+
+game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
+	task.wait(1)
+
+	local _ = character.Name
+
+	for k, item in pairs(noliData) do
+		if item then
+			secondaryHandler(k, false)
+		end
+	end
+end)
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Section({
+	Title = findCharacterBoundary("SURVIVOR AIMBOT", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Toggle({
+	Title = findCharacterBoundary("Chance Aimbot", sliderData.Primary, sliderData.Text),
+	Desc = "Auto-aim for Chance's Shoot ability",
+	Value = noliData.Chance,
+	Icon = "crosshair",
+	Callback = function(flag)
+		secondaryHandler("Chance", flag)
+	end
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Toggle({
+	Title = findCharacterBoundary("Taph Aimbot", sliderData.Primary, sliderData.Text),
+	Desc = "Auto-aim for Taph's SubspaceTripmine",
+	Value = noliData.Taph,
+	Icon = "crosshair",
+	Callback = function(flag)
+		secondaryHandler("Taph", flag)
+	end
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Toggle({
+	Title = findCharacterBoundary("Dusekkar Aimbot", sliderData.Primary, sliderData.Text),
+	Desc = "Auto-aim for Dusekkar's abilities",
+	Value = noliData.Dusekkar,
+	Icon = "crosshair",
+	Callback = function(flag)
+		secondaryHandler("Dusekkar", flag)
+	end
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Toggle({
+	Title = findCharacterBoundary("Guest1337 Aimbot", sliderData.Primary, sliderData.Text),
+	Desc = "Auto-aim for Guest1337's abilities",
+	Value = noliData.Guest1337,
+	Icon = "crosshair",
+	Callback = function(flag)
+		secondaryHandler("Guest1337", flag)
+	end
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Toggle({
+	Title = findCharacterBoundary("Two Time Aimbot", sliderData.Primary, sliderData.Text),
+	Desc = "Auto-aim for Two Time's abilities",
+	Value = noliData.TwoTime,
+	Icon = "crosshair",
+	Callback = function(flag)
+		secondaryHandler("TwoTime", flag)
+	end
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Toggle({
+	Title = findCharacterBoundary("Elliot Aimbot", sliderData.Primary, sliderData.Text),
+	Desc = "Auto-aim for Elliot's ThrowPizza",
+	Value = noliData.Elliot,
+	Icon = "crosshair",
+	Callback = function(flag)
+		secondaryHandler("Elliot", flag)
+	end
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Toggle({
+	Title = findCharacterBoundary("Shedletsky Aimbot", sliderData.Primary, sliderData.Text),
+	Desc = "Auto-aim for Shedletsky's Slash",
+	Value = noliData.Shedletsky,
+	Icon = "crosshair",
+	Callback = function(flag)
+		secondaryHandler("Shedletsky", flag)
+	end
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Section({
+	Title = findCharacterBoundary("KILLER AIMBOT", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Toggle({
+	Title = findCharacterBoundary("Noli Aimbot", sliderData.Primary, sliderData.Text),
+	Desc = "Auto-aim for Noli's abilities",
+	Value = noliData.Noli,
+	Icon = "crosshair",
+	Callback = function(flag)
+		secondaryHandler("Noli", flag)
+	end
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Toggle({
+	Title = findCharacterBoundary("1x1x1x1 Aimbot", sliderData.Primary, sliderData.Text),
+	Desc = "Auto-aim for 1x1x1x1's abilities",
+	Value = noliData.OneXOne,
+	Icon = "crosshair",
+	Callback = function(flag)
+		secondaryHandler("OneXOne", flag)
+	end
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Toggle({
+	Title = findCharacterBoundary("c001kidd Aimbot", sliderData.Primary, sliderData.Text),
+	Desc = "Auto-aim for c001kidd's abilities",
+	Value = noliData.C001kidd,
+	Icon = "crosshair",
+	Callback = function(flag)
+		secondaryHandler("C001kidd", flag)
+	end
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Toggle({
+	Title = findCharacterBoundary("John Doe Aimbot", sliderData.Primary, sliderData.Text),
+	Desc = "Auto-aim for John Doe's abilities",
+	Value = noliData.JohnDoe,
+	Icon = "crosshair",
+	Callback = function(flag)
+		secondaryHandler("JohnDoe", flag)
+	end
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+aimbotTab:Toggle({
+	Title = findCharacterBoundary("Slasher Aimbot", sliderData.Primary, sliderData.Text),
+	Desc = "Auto-aim for Slasher's abilities",
+	Value = noliData.Slasher,
+	Icon = "crosshair",
+	Callback = function(flag)
+		secondaryHandler("Slasher", flag)
+	end
+})
+aimbotTab:Divider({
+	Title = findCharacterBoundary("INFO", sliderData.Primary, sliderData.Text)
+})
+
+local function findFirstChild(inputCondition, secondaryArgument)
+	if inputCondition and inputCondition:IsA("Instance") then
+		return inputCondition:FindFirstChild(secondaryArgument)
+	end
+
+	return nil
+end
+local function secondaryHandleInstanceProperties()
+	local LocalPlayer = game.Players.LocalPlayer
+	local instancePropertiesCondition = findFirstChild(workspace.Players, "Survivors")
+
+	if instancePropertiesCondition then
+		for _, child in pairs(instancePropertiesCondition:GetChildren()) do
+			if child:IsA("Model") then
+				local Username = child:GetAttribute("Username")
+
+				if Username and Username == LocalPlayer.Name then
+					return true
+				end
+			end
+		end
+
+		return false
+	end
+
+	return false
+end
+local function handleData()
+	local childs = {}
+	local dataCondition = findFirstChild(workspace.Map, "Ingame")
+
+	if dataCondition then
+		local condition = findFirstChild(dataCondition, "Map")
+
+		if condition then
+			for _, child in pairs(condition:GetChildren()) do
+				if child.Name == "Generator" then
+					table.insert(childs, child)
+				end
+			end
+		end
+	end
+
+	return childs
+end
+local function getData(item)
+	local getDataFlag = findFirstChild(item, "Progress")
+
+	if not getDataFlag or not getDataFlag:IsA("NumberValue") then
+		return 0
+	end
+
+	return getDataFlag.Value
+end
+local function secondaryHandleData()
+	local dataResult = handleData()
+	local vs = {}
+
+	for _, item in pairs(dataResult) do
+		if getData(item) < 100 then
+			table.insert(vs, item)
+		end
+	end
+
+	return vs
+end
+local function getInstancePropertiesPosition(item)
+	local inputCondition = findFirstChild(item, "Instances")
+
+	if inputCondition then
+		local input = findFirstChild(inputCondition, "Cube.001")
+
+		if input and input:IsA("BasePart") then
+			return input.Position
+		end
+	end
+
+	local condition = findFirstChild(item, "Positions")
+
+	if condition then
+		local input = findFirstChild(condition, "Center")
+
+		if input and input:IsA("BasePart") then
+			return input.Position
+		end
+	end
+
+	for _, descendant in pairs(item:GetDescendants()) do
+		if descendant:IsA("BasePart") then
+			return descendant.Position
+		end
+	end
+
+	return Vector3.new(0, 0, 0)
+end
+local function handleHumanoidRootPartContainer()
+	local LocalPlayer = game.Players.LocalPlayer
+	local Survivors = workspace.Players:FindFirstChild("Survivors")
+
+	if Survivors then
+		for _, child in pairs(Survivors:GetChildren()) do
+			if child:IsA("Model") then
+				local Username = child:GetAttribute("Username")
+
+				if Username and Username == LocalPlayer.Name then
+					return child
+				end
+			end
+		end
+
+		return nil
+	end
+
+	return nil
+end
+local function handleCurrentRepairGenerator()
+	local inputCondition = handleHumanoidRootPartContainer()
+
+	if inputCondition then
+		local input = findFirstChild(inputCondition, "HumanoidRootPart")
+
+		if input then
+			local secondaryData = secondaryHandleData()
+
+			if #secondaryData ~= 0 then
+				local item = nil
+				local huge = math.huge
+
+				for _, secondaryItem in pairs(secondaryData) do
+					local magnitudeNumber = getInstancePropertiesPosition(secondaryItem)
+
+					if magnitudeNumber ~= Vector3.new(0, 0, 0) then
+						local Magnitude = (magnitudeNumber - input.Position).Magnitude
+
+						if Magnitude < huge then
+							huge = Magnitude
+							item = secondaryItem
+						end
+					end
+				end
+
+				return item
+			end
+
+			return nil
+		end
+
+		return nil
+	end
+
+	return nil
+end
+local function secondaryUpdateCFrame(sumNumber)
+	local updateCFrameCondition = handleHumanoidRootPartContainer()
+
+	if updateCFrameCondition then
+		local cFrameCondition = findFirstChild(updateCFrameCondition, "HumanoidRootPart")
+
+		if cFrameCondition then
+			local updateCFrameNumber = sumNumber + Vector3.new(0, 0, 0)
+
+			cFrameCondition.CFrame = CFrame.new(updateCFrameNumber)
+
+			return true
+		end
+
+		return false
+	end
+
+	return false
+end
+local function updatePromptActivated(inputCondition)
+	if not flyingData.promptActivated then
+		local updatePromptActivatedCondition = findFirstChild(inputCondition, "Main")
+
+		if updatePromptActivatedCondition then
+			local secondaryDescendant = findFirstChild(updatePromptActivatedCondition, "Prompt")
+
+			if not secondaryDescendant then
+				for _, descendant in pairs(updatePromptActivatedCondition:GetDescendants()) do
+					if descendant:IsA("ProximityPrompt") then
+						secondaryDescendant = descendant
+
+						break
+					end
+				end
+			end
+
+			if secondaryDescendant and secondaryDescendant:IsA("ProximityPrompt") then
+				fireproximityprompt(secondaryDescendant)
+				flyingData.promptActivated = true
+
+				return true
+			end
+
+			return false
+		end
+
+		return false
+	end
+
+	return true
+end
+local function sendRemotes(inputCondition)
+	local remoteEventCondition = findFirstChild(inputCondition, "Remotes")
+
+	if remoteEventCondition then
+		local remoteEvent = findFirstChild(remoteEventCondition, "RE")
+
+		if not remoteEvent or not remoteEvent:IsA("RemoteEvent") or isSendRemotesSurvivorData.repairDebounce[inputCondition] then
+			return false
+		end
+
+		isSendRemotesSurvivorData.repairDebounce[inputCondition] = true
+
+		local ok = pcall(function()
+			remoteEvent:FireServer()
+		end)
+
+		task.delay(3, function()
+			isSendRemotesSurvivorData.repairDebounce[inputCondition] = nil
+		end)
+
+		return ok
+	end
+
+	return false
+end
+local function fallbackUpdateInstanceProperties()
+	if flyingData.autoRepairActive then
+		flyingData.autoRepairActive = false
+
+		if pData.autoRepairConnection then
+			pData.autoRepairConnection:Disconnect()
+			pData.autoRepairConnection = nil
+		end
+
+		isSendRemotesSurvivorData.currentRepairGenerator = nil
+		isSendRemotesSurvivorData.repairDebounce = {}
+		flyingData.promptActivated = false
+		flyingData.teleportedToGenerator = false
+
+		return
+	end
+end
+local function nestedUpdateInstanceProperties()
+	if not flyingData.autoRepairActive then
+		flyingData.autoRepairActive = true
+		pData.autoRepairConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.autoRepairActive then
+				if secondaryHandleInstanceProperties() then
+					if handleHumanoidRootPartContainer() then
+						if isSendRemotesSurvivorData.currentRepairGenerator and (not isSendRemotesSurvivorData.currentRepairGenerator.Parent or getData(isSendRemotesSurvivorData.currentRepairGenerator) >= 100) then
+							isSendRemotesSurvivorData.currentRepairGenerator = nil
+							flyingData.promptActivated = false
+							flyingData.teleportedToGenerator = false
+							lastAuraUseData.teleportTime = 0
+						end
+
+						if not isSendRemotesSurvivorData.currentRepairGenerator then
+							isSendRemotesSurvivorData.currentRepairGenerator = handleCurrentRepairGenerator()
+
+							if not isSendRemotesSurvivorData.currentRepairGenerator then
+								fallbackUpdateInstanceProperties()
+
+								return
+							end
+
+							flyingData.promptActivated = false
+							flyingData.teleportedToGenerator = false
+							lastAuraUseData.teleportTime = 0
+						end
+
+						if not flyingData.teleportedToGenerator then
+							local updateCFrameNumber = getInstancePropertiesPosition(isSendRemotesSurvivorData.currentRepairGenerator)
+
+							if updateCFrameNumber ~= Vector3.new(0, 0, 0) then
+								secondaryUpdateCFrame(updateCFrameNumber)
+								flyingData.teleportedToGenerator = true
+								lastAuraUseData.teleportTime = tick()
+							end
+						end
+
+						if not flyingData.promptActivated and flyingData.teleportedToGenerator and tick() - lastAuraUseData.teleportTime >= 0.5 then
+							updatePromptActivated(isSendRemotesSurvivorData.currentRepairGenerator)
+							flyingData.promptActivated = true
+						end
+
+						if flyingData.promptActivated then
+							sendRemotes(isSendRemotesSurvivorData.currentRepairGenerator)
+						end
+
+						if getData(isSendRemotesSurvivorData.currentRepairGenerator) >= 100 then
+							task.wait(flySpeedData.teleportCooldown)
+							isSendRemotesSurvivorData.currentRepairGenerator = nil
+							flyingData.promptActivated = false
+							flyingData.teleportedToGenerator = false
+							lastAuraUseData.teleportTime = 0
+						end
+
+						task.wait(flySpeedData.repairCheckInterval)
+
+						return
+					end
+
+					fallbackUpdateInstanceProperties()
+
+					return
+				end
+
+				fallbackUpdateInstanceProperties()
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function handleSendRemoteEvent()
+	if not (tick() - lastAuraUseData.lastFriedChickenTime < flySpeedData.friedChickenCooldown) then
+		return true
+	end
+
+	return false
+end
+local function sendRemoteEvent()
+	if handleSendRemoteEvent() then
+		if not pcall(function()
+			game.ReplicatedStorage.Modules.Network.RemoteEvent:FireServer(unpack({
+				"UseActorAbility",
+				"FriedChicken"
+			}))
+		end) then
+			return false
+		end
+
+		lastAuraUseData.lastFriedChickenTime = tick()
+
+		return true
+	end
+
+	return false
+end
+local function innerUpdateInstanceProperties()
+	if not flyingData.autoFriedChicken then
+		flyingData.autoFriedChicken = true
+		pData.friedChickenConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.autoFriedChicken then
+				local updateInstancePropertiesCondition = handleHumanoidRootPartContainer()
+
+				if updateInstancePropertiesCondition then
+					local Humanoid = updateInstancePropertiesCondition:FindFirstChildOfClass("Humanoid")
+
+					if Humanoid and not (Humanoid.Health <= 0) then
+						if Humanoid.Health / Humanoid.MaxHealth * 100 <= flySpeedData.friedChickenThreshold and handleSendRemoteEvent() then
+							sendRemoteEvent()
+						end
+
+						return
+					end
+
+					return
+				end
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function outerUpdateInstanceProperties()
+	if flyingData.autoFriedChicken then
+		flyingData.autoFriedChicken = false
+
+		if pData.friedChickenConnection then
+			pData.friedChickenConnection:Disconnect()
+			pData.friedChickenConnection = nil
+		end
+
+		return
+	end
+end
+local function isUpdateInstancePropertiesValid()
+	local condition = handleHumanoidRootPartContainer()
+
+	if condition then
+		return condition.Name == "Chance"
+	end
+
+	return false
+end
+local function secondaryHandleSendRemoteEvent()
+	if not (tick() - lastAuraUseData.lastCoinFlipTime < flySpeedData.coinFlipCooldown) then
+		return true
+	end
+
+	return false
+end
+local function updateLastCoinFlipTime()
+	if secondaryHandleSendRemoteEvent() then
+		if not pcall(function()
+			game.ReplicatedStorage.Modules.Network.RemoteEvent:FireServer(unpack({
+				"UseActorAbility",
+				"CoinFlip"
+			}))
+		end) then
+			return false
+		end
+
+		lastAuraUseData.lastCoinFlipTime = tick()
+
+		return true
+	end
+
+	return false
+end
+local function previousUpdateInstanceProperties()
+	if not flyingData.autoCoinFlip then
+		flyingData.autoCoinFlip = true
+		pData.coinFlipConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.autoCoinFlip then
+				if secondaryHandleInstanceProperties() and isUpdateInstancePropertiesValid() then
+					if secondaryHandleSendRemoteEvent() then
+						updateLastCoinFlipTime()
+					end
+
+					return
+				end
+
+				stopAutoCoinFlip()
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function currentUpdateInstanceProperties()
+	if flyingData.autoCoinFlip then
+		flyingData.autoCoinFlip = false
+
+		if pData.coinFlipConnection then
+			pData.coinFlipConnection:Disconnect()
+			pData.coinFlipConnection = nil
+		end
+
+		return
+	end
+end
+local function alternateHandleSendRemoteEvent()
+	if not (tick() - lastAuraUseData.lastCloneTime < flySpeedData.cloneCooldown) then
+		return true
+	end
+
+	return false
+end
+local function updateLastCloneTime()
+	if alternateHandleSendRemoteEvent() then
+		if not pcall(function()
+			game.ReplicatedStorage.Modules.Network.RemoteEvent:FireServer(unpack({
+				"UseActorAbility",
+				"Clone"
+			}))
+		end) then
+			return false
+		end
+
+		lastAuraUseData.lastCloneTime = tick()
+
+		return true
+	end
+
+	return false
+end
+local function nextUpdateInstanceProperties()
+	if not flyingData.autoClone then
+		flyingData.autoClone = true
+
+		local updateInstancePropertiesCondition = handleHumanoidRootPartContainer()
+
+		if updateInstancePropertiesCondition then
+			local Humanoid = updateInstancePropertiesCondition:FindFirstChildOfClass("Humanoid")
+
+			if Humanoid then
+				isSendRemotesSurvivorData.lastHealth = Humanoid.Health
+			end
+		end
+
+		pData.cloneConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.autoClone then
+				if secondaryHandleInstanceProperties() then
+					local updateInstancePropertiesCondition = handleHumanoidRootPartContainer()
+
+					if updateInstancePropertiesCondition then
+						local Humanoid = updateInstancePropertiesCondition:FindFirstChildOfClass("Humanoid")
+
+						if Humanoid and not (Humanoid.Health <= 0) then
+							if Humanoid.Health < isSendRemotesSurvivorData.lastHealth and alternateHandleSendRemoteEvent() then
+								updateLastCloneTime()
+							end
+
+							isSendRemotesSurvivorData.lastHealth = Humanoid.Health
+
+							return
+						end
+
+						return
+					end
+
+					return
+				end
+
+				stopAutoClone()
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function sourceUpdateInstanceProperties()
+	if flyingData.autoClone then
+		flyingData.autoClone = false
+
+		if pData.cloneConnection then
+			pData.cloneConnection:Disconnect()
+			pData.cloneConnection = nil
+		end
+
+		return
+	end
+end
+
+local searchableText = {
+	"rbxassetid://94067586317868",
+	"rbxassetid://107925328038675"
+}
+
+local function updateAutoBlockConnection()
+	if not pData.autoBlockConnection then
+		pData.autoBlockConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.autoBlockActive and isSendRemotesSurvivorData.isSurvivor and isSendRemotesSurvivorData.killerModel then
+				local Character = game.Players.LocalPlayer.Character
+
+				if Character and Character:FindFirstChild("HumanoidRootPart") then
+					if not ((Character.HumanoidRootPart.Position - isSendRemotesSurvivorData.killerModel.HumanoidRootPart.Position).Magnitude > 15) then
+						local Humanoid = isSendRemotesSurvivorData.killerModel:FindFirstChildOfClass("Humanoid")
+
+						if Humanoid then
+							local Animator = Humanoid:FindFirstChildOfClass("Animator")
+
+							if Animator then
+								for _, item in pairs(Animator:GetPlayingAnimationTracks()) do
+									if table.find(searchableText, item.Animation.AnimationId) and isSendRemoteEventValid("Block") then
+										game:GetService("ReplicatedStorage").Modules.Network.RemoteEvent:FireServer("UseActorAbility", "Block")
+
+										return
+									end
+								end
+							end
+						end
+
+						return
+					end
+
+					return
+				end
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function secondaryUpdateAutoBlockConnection()
+	if pData.autoBlockConnection then
+		pData.autoBlockConnection:Disconnect()
+		pData.autoBlockConnection = nil
+	end
+end
+local function alternateHandleData(item)
+	local descendants = {}
+	local secondaryData = {
+		workspace.Map.Ingame,
+		workspace.Map.Ingame.Map,
+		workspace.Map
+	}
+
+	for _, secondaryItem in pairs(secondaryData) do
+		if secondaryItem then
+			local firstChild = secondaryItem:FindFirstChild(item)
+
+			if firstChild and firstChild:FindFirstChild("ItemRoot") then
+				table.insert(descendants, firstChild)
+			end
+
+			for _, descendant in pairs(secondaryItem:GetDescendants()) do
+				if item == descendant.Name and descendant:FindFirstChild("ItemRoot") then
+					table.insert(descendants, descendant)
+				end
+			end
+		end
+	end
+
+	return descendants
+end
+local function getCFramePosition(itemRootContainer)
+	local ItemRoot = itemRootContainer:FindFirstChild("ItemRoot")
+
+	if not ItemRoot or not ItemRoot:IsA("BasePart") then
+		for _, descendant in pairs(itemRootContainer:GetDescendants()) do
+			if descendant:IsA("BasePart") then
+				return descendant.Position
+			end
+		end
+
+		return nil
+	end
+
+	return ItemRoot.Position
+end
+local function secondaryHandleCondition(itemRootContainer)
+	if itemRootContainer then
+		local ItemRoot = itemRootContainer:FindFirstChild("ItemRoot")
+
+		if ItemRoot then
+			local conditionOption = ItemRoot:FindFirstChildOfClass("ProximityPrompt") or itemRootContainer:FindFirstChildOfClass("ProximityPrompt")
+
+			if not conditionOption or not conditionOption:IsA("ProximityPrompt") then
+				return false
+			end
+
+			fireproximityprompt(conditionOption)
+
+			return true
+		end
+
+		return false
+	end
+
+	return false
+end
+local function alternateUpdateCFrame(itemRootContainer)
+	local updateCFrameNumber = getCFramePosition(itemRootContainer)
+
+	if updateCFrameNumber then
+		local humanoidRootPartContainer = handleHumanoidRootPartContainer()
+
+		if humanoidRootPartContainer then
+			local HumanoidRootPart = humanoidRootPartContainer:FindFirstChild("HumanoidRootPart")
+
+			if HumanoidRootPart then
+				local sum = updateCFrameNumber + Vector3.new(0, 3, 0)
+
+				HumanoidRootPart.CFrame = CFrame.new(sum)
+
+				return true
+			end
+
+			return false
+		end
+
+		return false
+	end
+
+	return false
+end
+local function alternateHandleInstanceProperties(itemRootContainer)
+	if itemRootContainer and itemRootContainer.Parent then
+		if not alternateUpdateCFrame(itemRootContainer) then
+			return false
+		end
+
+		task.wait(0.5)
+
+		local instancePropertiesCondition = secondaryHandleCondition(itemRootContainer)
+
+		if instancePropertiesCondition then
+		end
+
+		return instancePropertiesCondition
+	end
+
+	return false
+end
+local function targetUpdateInstanceProperties()
+	if not flyingData.autoGetItemsActive then
+		flyingData.autoGetItemsActive = true
+		pData.autoGetItemsConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.autoGetItemsActive then
+				if secondaryHandleInstanceProperties() then
+					local updateInstancePropertiesData = {}
+
+					for _, item in pairs({
+						"Medkit",
+						"BloxyCola"
+					}) do
+						local secondaryUpdateInstancePropertiesData = alternateHandleData(item)
+
+						for _, item in pairs(secondaryUpdateInstancePropertiesData) do
+							table.insert(updateInstancePropertiesData, item)
+						end
+					end
+
+					for _, item in pairs(updateInstancePropertiesData) do
+						if flyingData.autoGetItemsActive and item and item.Parent then
+							alternateHandleInstanceProperties(item)
+							task.wait(flySpeedData.itemPickupCooldown)
+						end
+					end
+
+					if #updateInstancePropertiesData == 0 then
+						stopAutoGetItems()
+					end
+
+					return
+				end
+
+				stopAutoGetItems()
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function updateInstancePropertiesVariantA()
+	if flyingData.autoGetItemsActive then
+		flyingData.autoGetItemsActive = false
+
+		if pData.autoGetItemsConnection then
+			pData.autoGetItemsConnection:Disconnect()
+			pData.autoGetItemsConnection = nil
+		end
+
+		return
+	end
+end
+local function updateInstancePropertiesVariantB()
+	if not flyingData.autoGetMedkitActive then
+		flyingData.autoGetMedkitActive = true
+		pData.autoGetMedkitConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.autoGetMedkitActive then
+				if secondaryHandleInstanceProperties() then
+					local updateInstancePropertiesData = alternateHandleData("Medkit")
+
+					if not (#updateInstancePropertiesData > 0) then
+						stopAutoGetMedkit()
+					else
+						for _, item in pairs(updateInstancePropertiesData) do
+							if flyingData.autoGetMedkitActive and item and item.Parent then
+								alternateHandleInstanceProperties(item)
+
+								return
+							end
+						end
+					end
+
+					return
+				end
+
+				stopAutoGetMedkit()
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function updateInstancePropertiesVariantC()
+	if flyingData.autoGetMedkitActive then
+		flyingData.autoGetMedkitActive = false
+
+		if pData.autoGetMedkitConnection then
+			pData.autoGetMedkitConnection:Disconnect()
+			pData.autoGetMedkitConnection = nil
+		end
+
+		return
+	end
+end
+local function updateInstancePropertiesVariantD()
+	if not flyingData.autoGetBloxyColaActive then
+		flyingData.autoGetBloxyColaActive = true
+		pData.autoGetBloxyColaConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.autoGetBloxyColaActive then
+				if secondaryHandleInstanceProperties() then
+					local updateInstancePropertiesData = alternateHandleData("BloxyCola")
+
+					if not (#updateInstancePropertiesData > 0) then
+						stopAutoGetBloxyCola()
+					else
+						for _, item in pairs(updateInstancePropertiesData) do
+							if flyingData.autoGetBloxyColaActive and item and item.Parent then
+								alternateHandleInstanceProperties(item)
+
+								return
+							end
+						end
+					end
+
+					return
+				end
+
+				stopAutoGetBloxyCola()
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function updateInstancePropertiesVariantE()
+	if flyingData.autoGetBloxyColaActive then
+		flyingData.autoGetBloxyColaActive = false
+
+		if pData.autoGetBloxyColaConnection then
+			pData.autoGetBloxyColaConnection:Disconnect()
+			pData.autoGetBloxyColaConnection = nil
+		end
+
+		return
+	end
+end
+local function updateInstancePropertiesVariantF()
+	if not flyingData.itemAuraActive then
+		flyingData.itemAuraActive = true
+		pData.itemAuraConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.itemAuraActive then
+				if secondaryHandleInstanceProperties() then
+					local humanoidRootPartContainer = handleHumanoidRootPartContainer()
+
+					if humanoidRootPartContainer then
+						local HumanoidRootPart = humanoidRootPartContainer:FindFirstChild("HumanoidRootPart")
+
+						if HumanoidRootPart then
+							local updateInstancePropertiesData = {}
+
+							for _, item in pairs({
+								"Medkit",
+								"BloxyCola"
+							}) do
+								local secondaryUpdateInstancePropertiesData = alternateHandleData(item)
+
+								for _, item in pairs(secondaryUpdateInstancePropertiesData) do
+									table.insert(updateInstancePropertiesData, {
+										item = item,
+										position = getCFramePosition(item)
+									})
+								end
+							end
+
+							for _, item in pairs(updateInstancePropertiesData) do
+								if item.position and (item.position - HumanoidRootPart.Position).Magnitude <= flySpeedData.itemAuraRange then
+									secondaryHandleCondition(item.item)
+									task.wait(0.1)
+								end
+							end
+
+							task.wait(0.5)
+
+							return
+						end
+
+						return
+					end
+
+					return
+				end
+
+				stopItemAura()
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function updateInstancePropertiesVariantG()
+	if flyingData.itemAuraActive then
+		flyingData.itemAuraActive = false
+
+		if pData.itemAuraConnection then
+			pData.itemAuraConnection:Disconnect()
+			pData.itemAuraConnection = nil
+		end
+
+		return
+	end
+end
+
+survivorTab:Divider({
+	Title = findCharacterBoundary("SURVIVOR SKILLS", sliderData.Primary, sliderData.Text)
+})
+survivorTab:Section({
+	Title = findCharacterBoundary("AUTO REPAIR", sliderData.Primary, sliderData.Text)
+})
+survivorTab:Toggle({
+	Title = findCharacterBoundary("Auto Repair Generators", sliderData.Primary, sliderData.Text),
+	Desc = "Automatically find and repair unfinished generators",
+	Value = false,
+	Icon = "zap",
+	Callback = function(flag)
+		if not flag then
+			fallbackUpdateInstanceProperties()
+		else
+			if not secondaryHandleInstanceProperties() then
+				return
+			end
+
+			nestedUpdateInstanceProperties()
+		end
+	end
+})
+survivorTab:Slider({
+	Title = findCharacterBoundary("Repair Check Interval", sliderData.Primary, sliderData.Text),
+	Desc = "Time between repair checks (seconds)",
+	Value = {
+		Min = 0.5,
+		Max = 5,
+		Default = flySpeedData.repairCheckInterval
+	},
+	Callback = function(repairCheckInterval)
+		flySpeedData.repairCheckInterval = repairCheckInterval
+	end
+})
+survivorTab:Slider({
+	Title = findCharacterBoundary("Teleport Cooldown", sliderData.Primary, sliderData.Text),
+	Desc = "Delay after completing a generator (seconds)",
+	Value = {
+		Min = 0.1,
+		Max = 2,
+		Default = flySpeedData.teleportCooldown
+	},
+	Callback = function(teleportCooldown)
+		flySpeedData.teleportCooldown = teleportCooldown
+	end
+})
+survivorTab:Divider({
+	Title = findCharacterBoundary("SURVIVOR SKILLS", sliderData.Primary, sliderData.Text)
+})
+survivorTab:Section({
+	Title = findCharacterBoundary("SURVIVOR SKILLS", sliderData.Primary, sliderData.Text)
+})
+survivorTab:Toggle({
+	Title = findCharacterBoundary("Auto Fried Chicken", sliderData.Primary, sliderData.Text),
+	Desc = "Automatically use Fried Chicken when HP is low",
+	Value = false,
+	Icon = "drumstick",
+	Callback = function(flag)
+		if not flag then
+			outerUpdateInstanceProperties()
+		else
+			if not secondaryHandleInstanceProperties() then
+				return false
+			end
+
+			innerUpdateInstanceProperties()
+		end
+	end
+})
+survivorTab:Slider({
+	Title = findCharacterBoundary("HP Threshold (%)", sliderData.Primary, sliderData.Text),
+	Desc = "HP percentage to activate Fried Chicken",
+	Value = {
+		Min = 10,
+		Max = 90,
+		Default = flySpeedData.friedChickenThreshold
+	},
+	Callback = function(friedChickenThreshold)
+		flySpeedData.friedChickenThreshold = friedChickenThreshold
+	end
+})
+survivorTab:Toggle({
+	Title = findCharacterBoundary("Auto Coin Flip", sliderData.Primary, sliderData.Text),
+	Desc = "Automatically use Coin Flip ability on cooldown",
+	Value = false,
+	Icon = "eye",
+	Callback = function(flag)
+		if not flag then
+			currentUpdateInstanceProperties()
+		else
+			if not secondaryHandleInstanceProperties() then
+				return false
+			end
+
+			previousUpdateInstanceProperties()
+		end
+	end
+})
+survivorTab:Slider({
+	Title = findCharacterBoundary("Coin Flip Cooldown", sliderData.Primary, sliderData.Text),
+	Desc = "Time between Coin Flip uses (seconds)",
+	Value = {
+		Min = 1,
+		Max = 10,
+		Default = flySpeedData.coinFlipCooldown
+	},
+	Callback = function(numberText)
+		flySpeedData.coinFlipCooldown = tonumber(numberText) or 5
+	end
+})
+survivorTab:Toggle({
+	Title = findCharacterBoundary("Auto Clone", sliderData.Primary, sliderData.Text),
+	Desc = "Automatically use Clone when taking damage",
+	Value = false,
+	Icon = "copy",
+	Callback = function(flag)
+		if not flag then
+			sourceUpdateInstanceProperties()
+		else
+			if not secondaryHandleInstanceProperties() then
+				return false
+			end
+
+			nextUpdateInstanceProperties()
+		end
+	end
+})
+survivorTab:Toggle({
+	Title = findCharacterBoundary("Auto Block", sliderData.Primary, sliderData.Text),
+	Desc = "Auto blocking killer attacks",
+	Value = false,
+	Icon = "shield",
+	Callback = function(autoBlockActive)
+		flyingData.autoBlockActive = autoBlockActive
+
+		if not autoBlockActive then
+			secondaryUpdateAutoBlockConnection()
+		else
+			if not isSendRemotesSurvivorData.isSurvivor then
+				return false
+			end
+
+			updateAutoBlockConnection()
+		end
+	end
+})
+survivorTab:Divider({
+	Title = findCharacterBoundary("AUTO ITEMS", sliderData.Primary, sliderData.Text)
+})
+survivorTab:Section({
+	Title = findCharacterBoundary("AUTO ITEMS", sliderData.Primary, sliderData.Text)
+})
+survivorTab:Toggle({
+	Title = findCharacterBoundary("Auto Get Items", sliderData.Primary, sliderData.Text),
+	Desc = "Teleport to and pickup all items on the map",
+	Value = false,
+	Icon = "package",
+	Callback = function(flag)
+		if not flag then
+			updateInstancePropertiesVariantA()
+		else
+			if not secondaryHandleInstanceProperties() then
+				windUi:Notify({
+					Title = "Error",
+					Content = "You must be a survivor to use this",
+					Duration = 3
+				})
+
+				return false
+			end
+
+			targetUpdateInstanceProperties()
+		end
+	end
+})
+survivorTab:Toggle({
+	Title = findCharacterBoundary("Auto Get Medkit", sliderData.Primary, sliderData.Text),
+	Desc = "Teleport to and pickup medkits",
+	Value = false,
+	Icon = "heart",
+	Callback = function(flag)
+		if not flag then
+			updateInstancePropertiesVariantC()
+		else
+			if not secondaryHandleInstanceProperties() then
+				windUi:Notify({
+					Title = "Error",
+					Content = "You must be a survivor to use this",
+					Duration = 3
+				})
+
+				return false
+			end
+
+			updateInstancePropertiesVariantB()
+		end
+	end
+})
+survivorTab:Toggle({
+	Title = findCharacterBoundary("Auto Get Bloxy Cola", sliderData.Primary, sliderData.Text),
+	Desc = "Teleport to and pickup Bloxy Cola",
+	Value = false,
+	Icon = "coffee",
+	Callback = function(flag)
+		if not flag then
+			updateInstancePropertiesVariantE()
+		else
+			if not secondaryHandleInstanceProperties() then
+				windUi:Notify({
+					Title = "Error",
+					Content = "You must be a survivor to use this",
+					Duration = 3
+				})
+
+				return false
+			end
+
+			updateInstancePropertiesVariantD()
+		end
+	end
+})
+survivorTab:Toggle({
+	Title = findCharacterBoundary("Item Aura", sliderData.Primary, sliderData.Text),
+	Desc = "Auto pickup items when nearby",
+	Value = false,
+	Icon = "zap",
+	Callback = function(flag)
+		if not flag then
+			updateInstancePropertiesVariantG()
+		else
+			if not secondaryHandleInstanceProperties() then
+				windUi:Notify({
+					Title = "Error",
+					Content = "You must be a survivor to use this",
+					Duration = 3
+				})
+
+				return false
+			end
+
+			updateInstancePropertiesVariantF()
+		end
+	end
+})
+survivorTab:Slider({
+	Title = findCharacterBoundary("Item Aura Range", sliderData.Primary, sliderData.Text),
+	Desc = "Distance for auto item pickup",
+	Value = {
+		Min = 1,
+		Max = 15,
+		Default = flySpeedData.itemAuraRange
+	},
+	Callback = function(itemAuraRange)
+		flySpeedData.itemAuraRange = itemAuraRange
+	end
+})
+survivorTab:Slider({
+	Title = findCharacterBoundary("Pickup Cooldown", sliderData.Primary, sliderData.Text),
+	Desc = "Time between item pickups (seconds)",
+	Value = {
+		Min = 0.5,
+		Max = 3,
+		Default = flySpeedData.itemPickupCooldown
+	},
+	Callback = function(itemPickupCooldown)
+		flySpeedData.itemPickupCooldown = itemPickupCooldown
+	end
+})
+game.Players.LocalPlayer.CharacterAdded:Connect(function(_)
+	if flyingData.autoGetItemsActive then
+		pcall(updateInstancePropertiesVariantA)
+		flyingData.autoGetItemsActive = false
+	end
+
+	if flyingData.autoGetMedkitActive then
+		pcall(updateInstancePropertiesVariantC)
+		flyingData.autoGetMedkitActive = false
+	end
+
+	if flyingData.autoGetBloxyColaActive then
+		pcall(updateInstancePropertiesVariantE)
+		flyingData.autoGetBloxyColaActive = false
+	end
+
+	if flyingData.itemAuraActive then
+		pcall(updateInstancePropertiesVariantG)
+		flyingData.itemAuraActive = false
+	end
+end)
+game.Players.LocalPlayer.CharacterRemoving:Connect(function()
+	if flyingData.autoGetItemsActive then
+		updateInstancePropertiesVariantA()
+	end
+
+	if flyingData.autoGetMedkitActive then
+		updateInstancePropertiesVariantC()
+	end
+
+	if flyingData.autoGetBloxyColaActive then
+		updateInstancePropertiesVariantE()
+	end
+
+	if flyingData.itemAuraActive then
+		updateInstancePropertiesVariantG()
+	end
+end)
+game:GetService("RunService").Heartbeat:Connect(function()
+	if flyingData.autoGetItemsActive and not secondaryHandleInstanceProperties() then
+		updateInstancePropertiesVariantA()
+	end
+
+	if flyingData.autoGetMedkitActive and not secondaryHandleInstanceProperties() then
+		updateInstancePropertiesVariantC()
+	end
+
+	if flyingData.autoGetBloxyColaActive and not secondaryHandleInstanceProperties() then
+		updateInstancePropertiesVariantE()
+	end
+
+	if flyingData.itemAuraActive and not secondaryHandleInstanceProperties() then
+		updateInstancePropertiesVariantG()
+	end
+end)
+game.Players.LocalPlayer.CharacterAdded:Connect(function(_)
+	if flyingData.autoRepairActive then
+		fallbackUpdateInstanceProperties()
+	end
+
+	if flyingData.autoFriedChicken then
+		outerUpdateInstanceProperties()
+	end
+
+	if flyingData.autoCoinFlip then
+		currentUpdateInstanceProperties()
+	end
+
+	if flyingData.autoClone then
+		sourceUpdateInstanceProperties()
+	end
+
+	if flyingData.autoBlockActive then
+		secondaryUpdateAutoBlockConnection()
+		flyingData.autoBlockActive = false
+	end
+end)
+game.Players.LocalPlayer.CharacterRemoving:Connect(function()
+	if flyingData.autoRepairActive then
+		fallbackUpdateInstanceProperties()
+	end
+
+	if flyingData.autoFriedChicken then
+		outerUpdateInstanceProperties()
+	end
+
+	if flyingData.autoCoinFlip then
+		currentUpdateInstanceProperties()
+	end
+
+	if flyingData.autoClone then
+		sourceUpdateInstanceProperties()
+	end
+
+	if flyingData.autoBlockActive then
+		secondaryUpdateAutoBlockConnection()
+	end
+end)
+game:GetService("RunService").Heartbeat:Connect(function()
+	if flyingData.autoRepairActive and not secondaryHandleInstanceProperties() then
+		fallbackUpdateInstanceProperties()
+	end
+
+	if flyingData.autoFriedChicken and not secondaryHandleInstanceProperties() then
+		outerUpdateInstanceProperties()
+	end
+
+	if flyingData.autoCoinFlip and (not secondaryHandleInstanceProperties() or not isUpdateInstancePropertiesValid()) then
+		currentUpdateInstanceProperties()
+	end
+
+	if flyingData.autoClone and not secondaryHandleInstanceProperties() then
+		sourceUpdateInstanceProperties()
+	end
+end)
+
+local function handleCurrentTarget()
+	local Character = game.Players.LocalPlayer.Character
+
+	if Character then
+		local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+
+		if HumanoidRootPart then
+			local Survivors = workspace.Players:FindFirstChild("Survivors")
+
+			if Survivors then
+				local secondaryChild = nil
+				local huge = math.huge
+
+				for _, child in pairs(Survivors:GetChildren()) do
+					if child:IsA("Model") and child:FindFirstChild("Humanoid") and child.Humanoid.Health > 0 then
+						local humanoidRootPart = child:FindFirstChild("HumanoidRootPart")
+
+						if humanoidRootPart then
+							local Magnitude = (humanoidRootPart.Position - HumanoidRootPart.Position).Magnitude
+
+							if Magnitude < huge then
+								huge = Magnitude
+								secondaryChild = child
+							end
+						end
+					end
+				end
+
+				return secondaryChild
+			end
+
+			return nil
+		end
+
+		return nil
+	end
+
+	return nil
+end
+local function additionalUpdateCFrame(humanoidRootPartContainer)
+	if humanoidRootPartContainer and humanoidRootPartContainer:FindFirstChild("HumanoidRootPart") then
+		local Character = game.Players.LocalPlayer.Character
+
+		if Character then
+			local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+
+			if HumanoidRootPart then
+				local humanoidRootPart = humanoidRootPartContainer.HumanoidRootPart
+
+				if not flyingData.killAllTeleport then
+					if not flyingData.killAllFly then
+						Character.Humanoid:MoveTo(humanoidRootPart.Position)
+					else
+						if not flyingData.flying then
+							createBodyGyro()
+						end
+
+						local Unit = (humanoidRootPart.Position - HumanoidRootPart.Position).Unit
+
+						Character.Humanoid:MoveTo(HumanoidRootPart.Position + Unit * 10)
+					end
+				else
+					local LookVector = humanoidRootPart.CFrame.LookVector
+					local updateCFrameNumber = humanoidRootPart.Position - LookVector * 2.7 + Vector3.new(0, 1.5, 0)
+
+					HumanoidRootPart.CFrame = CFrame.new(updateCFrameNumber)
+					HumanoidRootPart.CFrame = CFrame.lookAt(updateCFrameNumber, humanoidRootPart.Position)
+				end
+
+				return
+			end
+
+			return
+		end
+
+		return
+	end
+end
+local function handleResult()
+	local Character = game.Players.LocalPlayer.Character
+
+	if Character then
+		local CharacterName = Character.Name
+
+		if CharacterName ~= "Noli" then
+			if CharacterName ~= "c001kidd" then
+				return "Slash"
+			end
+
+			return "Punch"
+		end
+
+		return "Stab"
+	end
+
+	return "Slash"
+end
+local function secondarySendRemoteEvent(sendRemoteEventArgument)
+	if not isSendRemotesSurvivorData.skillCooldowns[sendRemoteEventArgument] or not (tick() - isSendRemotesSurvivorData.skillCooldowns[sendRemoteEventArgument] < 5) then
+		game.ReplicatedStorage.Modules.Network.RemoteEvent:FireServer(unpack({
+			"UseActorAbility",
+			sendRemoteEventArgument
+		}))
+		isSendRemotesSurvivorData.skillCooldowns[sendRemoteEventArgument] = tick()
+
+		return true
+	end
+
+	return false
+end
+local function alternateSendRemoteEvent()
+	local sendRemoteEventResult = handleResult()
+
+	game.ReplicatedStorage.Modules.Network.RemoteEvent:FireServer(unpack({
+		"UseActorAbility",
+		sendRemoteEventResult
+	}))
+end
+local function updateRagingPace()
+	if not pData.skillConnections.RagingPace then
+		pData.skillConnections.RagingPace = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.autoRagingPace then
+				local Character = game.Players.LocalPlayer.Character
+
+				if Character and Character.Name == "Slasher" then
+					secondarySendRemoteEvent("RagingPace")
+					task.wait(10)
+				end
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function updateUnstableEye()
+	if not pData.skillConnections.UnstableEye then
+		pData.skillConnections.UnstableEye = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.autoUnstableEye then
+				local Character = game.Players.LocalPlayer.Character
+
+				if Character and Character.Name == "1x1x1x1" then
+					secondarySendRemoteEvent("UnstableEye")
+					task.wait(15)
+				end
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function updatePizzaDelivery()
+	if not pData.skillConnections.PizzaDelivery then
+		pData.skillConnections.PizzaDelivery = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.autoPizzaDelivery then
+				local Character = game.Players.LocalPlayer.Character
+
+				if Character and Character.Name == "c001kidd" then
+					secondarySendRemoteEvent("PizzaDelivery")
+					task.wait(12)
+				end
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function alternateHandler()
+	if not pData.skillConnections.Error404 then
+		pData.skillConnections.Error404 = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.auto404Error then
+				local Character = game.Players.LocalPlayer.Character
+
+				if Character and Character.Name == "JohnDoe" then
+					secondarySendRemoteEvent("404Error")
+					task.wait(8)
+				end
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function updateSkillConnections()
+	for _, item in pairs(pData.skillConnections) do
+		if item then
+			item:Disconnect()
+		end
+	end
+
+	pData.skillConnections = {}
+end
+local function updateInstancePropertiesVariantH()
+	if not flyingData.killAllActive then
+		flyingData.killAllActive = true
+
+		local LocalPlayer = game.Players.LocalPlayer
+		local _ = LocalPlayer.Character
+
+		pData.killAllConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.killAllActive then
+				if isSendRemotesSurvivorData.currentTarget and (not isSendRemotesSurvivorData.currentTarget.Parent or not isSendRemotesSurvivorData.currentTarget:FindFirstChild("Humanoid") or isSendRemotesSurvivorData.currentTarget.Humanoid.Health <= 0) then
+					isSendRemotesSurvivorData.currentTarget = nil
+				end
+
+				if not isSendRemotesSurvivorData.currentTarget then
+					isSendRemotesSurvivorData.currentTarget = handleCurrentTarget()
+
+					if not isSendRemotesSurvivorData.currentTarget then
+						return
+					end
+				end
+
+				additionalUpdateCFrame(isSendRemotesSurvivorData.currentTarget)
+
+				local Character = LocalPlayer.Character
+
+				if Character and Character:FindFirstChild("HumanoidRootPart") and isSendRemotesSurvivorData.currentTarget:FindFirstChild("HumanoidRootPart") then
+					local Magnitude = (isSendRemotesSurvivorData.currentTarget.HumanoidRootPart.Position - Character.HumanoidRootPart.Position).Magnitude
+
+					if not flyingData.killAllTeleport then
+						if Magnitude < 15 then
+							alternateSendRemoteEvent()
+						end
+					else
+						alternateSendRemoteEvent()
+						task.wait(0.3)
+					end
+				end
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function updateInstancePropertiesVariantI()
+	if flyingData.killAllActive then
+		flyingData.killAllActive = false
+
+		if pData.killAllConnection and type(pData.killAllConnection) == "userdata" then
+			pcall(function()
+				pData.killAllConnection:Disconnect()
+			end)
+			pData.killAllConnection = nil
+		end
+
+		isSendRemotesSurvivorData.currentTarget = nil
+
+		local Character = game.Players.LocalPlayer.Character
+
+		if Character and Character:FindFirstChildOfClass("Humanoid") then
+			pcall(function()
+				Character.Humanoid:MoveTo(Character.HumanoidRootPart.Position)
+			end)
+		end
+
+		return
+	end
+end
+
+killerTab:Divider({
+	Title = findCharacterBoundary("KILL ALL", sliderData.Primary, sliderData.Text)
+})
+killerTab:Section({
+	Title = findCharacterBoundary("KILL ALL", sliderData.Primary, sliderData.Text)
+})
+killerTab:Toggle({
+	Title = findCharacterBoundary("Kill All", sliderData.Primary, sliderData.Text),
+	Desc = "Automatically hunt and kill all survivors",
+	Value = false,
+	Icon = "skull",
+	Callback = function(flag)
+		if not flag then
+			updateInstancePropertiesVariantI()
+		else
+			updateInstancePropertiesVariantH()
+		end
+	end
+})
+killerTab:Toggle({
+	Title = findCharacterBoundary("Teleport Mode", sliderData.Primary, sliderData.Text),
+	Desc = "Teleport to survivors",
+	Value = false,
+	Icon = "move",
+	Callback = function(killAllTeleport)
+		flyingData.killAllTeleport = killAllTeleport
+
+		if killAllTeleport then
+			flyingData.killAllFly = false
+		end
+	end
+})
+killerTab:Button({
+	Title = findCharacterBoundary("Force New Target", sliderData.Primary, sliderData.Accent),
+	Desc = "Switch to nearest survivor",
+	Icon = "refresh-cw",
+	Callback = function()
+		isSendRemotesSurvivorData.currentTarget = handleCurrentTarget()
+	end
+})
+killerTab:Divider({
+	Title = findCharacterBoundary("KILL ALL", sliderData.Primary, sliderData.Text)
+})
+killerTab:Section({
+	Title = findCharacterBoundary("AUTO SKILLS", sliderData.Primary, sliderData.Text)
+})
+killerTab:Toggle({
+	Title = findCharacterBoundary("Auto Raging Pace", sliderData.Primary, sliderData.Text),
+	Desc = "Auto use RagingPace for Slasher",
+	Value = false,
+	Icon = "zap",
+	Callback = function(autoRagingPace)
+		flyingData.autoRagingPace = autoRagingPace
+
+		if not autoRagingPace then
+			stopAutoSkill("RagingPace")
+		else
+			updateRagingPace()
+		end
+	end
+})
+killerTab:Toggle({
+	Title = findCharacterBoundary("Auto Unstable Eye", sliderData.Primary, sliderData.Text),
+	Desc = "Auto use UnstableEye for 1x1x1x1",
+	Value = false,
+	Icon = "eye",
+	Callback = function(autoUnstableEye)
+		flyingData.autoUnstableEye = autoUnstableEye
+
+		if not autoUnstableEye then
+			stopAutoSkill("UnstableEye")
+		else
+			updateUnstableEye()
+		end
+	end
+})
+killerTab:Toggle({
+	Title = findCharacterBoundary("Auto Pizza Delivery", sliderData.Primary, sliderData.Text),
+	Desc = "Auto use PizzaDelivery for c001kidd",
+	Value = false,
+	Icon = "package",
+	Callback = function(autoPizzaDelivery)
+		flyingData.autoPizzaDelivery = autoPizzaDelivery
+
+		if not autoPizzaDelivery then
+			stopAutoSkill("PizzaDelivery")
+		else
+			updatePizzaDelivery()
+		end
+	end
+})
+killerTab:Toggle({
+	Title = findCharacterBoundary("Auto 404 Error", sliderData.Primary, sliderData.Text),
+	Desc = "Auto use 404Error for JohnDoe",
+	Value = false,
+	Icon = "axe",
+	Callback = function(auto404Error)
+		flyingData.auto404Error = auto404Error
+
+		if not auto404Error then
+			stopAutoSkill("Error404")
+		else
+			alternateHandler()
+		end
+	end
+})
+game.Players.LocalPlayer.CharacterAdded:Connect(function(_)
+	if flyingData.killAllActive then
+		pcall(updateInstancePropertiesVariantI)
+		flyingData.killAllActive = false
+	end
+
+	if flyingData.killerAuraActive then
+		pcall(stopAura)
+		flyingData.killerAuraActive = false
+	end
+
+	if flyingData.slashAuraActive then
+		pcall(stopAura)
+		flyingData.slashAuraActive = false
+	end
+
+	pcall(updateSkillConnections)
+
+	if flyingData.autoRepairActive then
+		pcall(fallbackUpdateInstanceProperties)
+		flyingData.autoRepairActive = false
+	end
+
+	if flyingData.autoFriedChicken then
+		pcall(outerUpdateInstanceProperties)
+		flyingData.autoFriedChicken = false
+	end
+
+	if flyingData.autoCoinFlip then
+		pcall(currentUpdateInstanceProperties)
+		flyingData.autoCoinFlip = false
+	end
+
+	if flyingData.autoClone then
+		pcall(sourceUpdateInstanceProperties)
+		flyingData.autoClone = false
+	end
+
+	if flyingData.autoBlockActive then
+		pcall(secondaryUpdateAutoBlockConnection)
+		flyingData.autoBlockActive = false
+	end
+
+	if flyingData.autoPickupActive then
+		pcall(stopAutoPickup)
+		flyingData.autoPickupActive = false
+	end
+
+	if flyingData.flying then
+		pcall(secondaryUpdateInstanceProperties)
+		flyingData.flying = false
+	end
+
+	if flyingData.noclip and _G.NoclipLoop then
+		pcall(function()
+			_G.NoclipLoop:Disconnect()
+		end)
+		_G.NoclipLoop = nil
+		flyingData.noclip = false
+	end
+
+	if flyingData.infiniteJump and _G.InfiniteJumpConnection then
+		pcall(function()
+			_G.InfiniteJumpConnection:Disconnect()
+		end)
+		_G.InfiniteJumpConnection = nil
+		flyingData.infiniteJump = false
+	end
+
+	lastAuraUseData = {
+		lastAuraUse = 0,
+		lastPickupTime = 0,
+		lastFriedChickenTime = 0,
+		lastCloneTime = 0,
+		lastCoinFlipTime = 0,
+		lastEspUpdate = 0,
+		teleportTime = 0
+	}
+	isSendRemotesSurvivorData = {
+		autoGenDebounce = {},
+		repairDebounce = {},
+		pickedUpItems = {},
+		skillCooldowns = {},
+		lastHealth = 0,
+		currentTarget = nil,
+		currentRepairGenerator = nil,
+		killerModel = nil,
+		isSurvivor = false
+	}
+	task.wait(1)
+	pcall(updateInstanceProperties)
+end)
+
+local function handleFlag()
+	local secondaryChild = nil
+	local huge = math.huge
+	local Character = game.Players.LocalPlayer.Character
+
+	if Character and Character:FindFirstChild("HumanoidRootPart") then
+		local Survivors = workspace.Players:FindFirstChild("Survivors")
+
+		if Survivors then
+			for _, child in pairs(Survivors:GetChildren()) do
+				if child:IsA("Model") and child:FindFirstChild("HumanoidRootPart") then
+					local Magnitude = (Character.HumanoidRootPart.Position - child.HumanoidRootPart.Position).Magnitude
+
+					if Magnitude < huge then
+						huge = Magnitude
+						secondaryChild = child
+					end
+				end
+			end
+
+			return secondaryChild, huge
+		end
+
+		return nil
+	end
+
+	return nil
+end
+local function updateLastAuraUse(sendRemoteEventText)
+	local lastAuraUse = tick()
+
+	if not (lastAuraUse - lastAuraUseData.lastAuraUse >= flySpeedData.auraCooldown) then
+		return false
+	end
+
+	game.ReplicatedStorage.Modules.Network.RemoteEvent:FireServer("UseActorAbility", sendRemoteEventText)
+	lastAuraUseData.lastAuraUse = lastAuraUse
+
+	return true
+end
+local function updateAuraConnection()
+	if not pData.auraConnection then
+		pData.auraConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.killerAuraActive and isSendRemotesSurvivorData.isKiller then
+				local updateAuraConnectionFlag, updateAuraConnectionResult = handleFlag()
+
+				if updateAuraConnectionFlag and not (updateAuraConnectionResult > flySpeedData.auraRange) then
+					local CharacterName = game.Players.LocalPlayer.Character.Name
+					local updateAuraConnectionText = "Slash"
+
+					if CharacterName ~= "Noli" then
+						if CharacterName ~= "c001kidd" then
+							if CharacterName == "Guest1337" then
+								updateAuraConnectionText = "Punch"
+							end
+						else
+							updateAuraConnectionText = "Punch"
+						end
+					else
+						updateAuraConnectionText = "Stab"
+					end
+
+					updateLastAuraUse(updateAuraConnectionText)
+
+					return
+				end
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function secondaryUpdateAuraConnection()
+	if not pData.auraConnection then
+		pData.auraConnection = game:GetService("RunService").Heartbeat:Connect(function()
+			if flyingData.slashAuraActive and isSendRemotesSurvivorData.isKiller then
+				local updateAuraConnectionFlag, updateAuraConnectionResult = handleFlag()
+
+				if updateAuraConnectionFlag and not (updateAuraConnectionResult > flySpeedData.auraRange) then
+					updateLastAuraUse("Slash")
+
+					return
+				end
+
+				return
+			end
+		end)
+
+		return
+	end
+end
+local function alternateUpdateAuraConnection()
+	if pData.auraConnection and type(pData.auraConnection) == "userdata" then
+		pcall(function()
+			pData.auraConnection:Disconnect()
+		end)
+		pData.auraConnection = nil
+	end
+end
+local function additionalHandler(argument, condition)
+	alternateUpdateAuraConnection()
+
+	if condition then
+		if not isSendRemotesSurvivorData.isKiller then
+			return false
+		end
+
+		if argument ~= "killer" then
+			if argument == "slash" then
+				secondaryUpdateAuraConnection()
+			end
+		else
+			updateAuraConnection()
+		end
+	end
+end
+
+killerTab:Divider({
+	Title = findCharacterBoundary("", sliderData.Primary, sliderData.Text)
+})
+killerTab:Section({
+	Title = findCharacterBoundary("KILLER AURA", sliderData.Primary, sliderData.Text)
+})
+killerTab:Toggle({
+	Title = findCharacterBoundary("Killer Aura", sliderData.Primary, sliderData.Text),
+	Desc = "Auto attack neariest survivor",
+	Value = false,
+	Icon = "target",
+	Callback = function(killerAuraActive)
+		flyingData.killerAuraActive = killerAuraActive
+
+		if killerAuraActive then
+			flyingData.slashAuraActive = false
+		end
+
+		additionalHandler("killer", killerAuraActive)
+	end
+})
+killerTab:Toggle({
+	Title = findCharacterBoundary("Slash Aura", sliderData.Primary, sliderData.Text),
+	Desc = "Slash aura for killers",
+	Value = false,
+	Icon = "sword",
+	Callback = function(slashAuraActive)
+		flyingData.slashAuraActive = slashAuraActive
+
+		if slashAuraActive then
+			flyingData.killerAuraActive = false
+		end
+
+		additionalHandler("slash", slashAuraActive)
+	end
+})
+killerTab:Slider({
+	Title = findCharacterBoundary("Aura Range", sliderData.Primary, sliderData.Text),
+	Desc = "Distance for auto attack",
+	Value = {
+		Min = 5,
+		Max = 30,
+		Default = flySpeedData.auraRange
+	},
+	Callback = function(auraRange)
+		flySpeedData.auraRange = auraRange
+	end
+})
+killerTab:Slider({
+	Title = findCharacterBoundary("Attack Cooldown", sliderData.Primary, sliderData.Text),
+	Desc = "Attack Delay (seconds)",
+	Value = {
+		Min = 0.5,
+		Max = 3,
+		Default = flySpeedData.auraCooldown
+	},
+	Callback = function(auraCooldown)
+		flySpeedData.auraCooldown = auraCooldown
+	end
+})
+game.Players.LocalPlayer.CharacterAdded:Connect(function(_)
+	if flyingData.killerAuraActive then
+		alternateUpdateAuraConnection()
+		flyingData.killerAuraActive = false
+	end
+
+	if flyingData.slashAuraActive then
+		alternateUpdateAuraConnection()
+		flyingData.slashAuraActive = false
+	end
+
+	task.wait(1)
+	updateInstanceProperties()
+end)
+game:GetService("RunService").Heartbeat:Connect(function()
+	if (flyingData.killerAuraActive or flyingData.slashAuraActive) and not isSendRemotesSurvivorData.isKiller then
+		alternateUpdateAuraConnection()
+		flyingData.killerAuraActive = false
+		flyingData.slashAuraActive = false
+	end
+end)
+
+local config = window.ConfigManager:CreateConfig("SNT_Config")
+
+gameSettingsTab:Divider({
+	Title = findCharacterBoundary("ESP SETTINGS", sliderData.Primary, sliderData.Text)
+})
+gameSettingsTab:Section({
+	Title = findCharacterBoundary("ESP VISUAL SETTINGS", sliderData.Primary, sliderData.Text)
+})
+
+local slider = gameSettingsTab:Slider({
+	Title = findCharacterBoundary("ESP Text Size", sliderData.Primary, sliderData.Text),
+	Desc = "Adjust the size of ESP text labels",
+	Step = 1,
+	Value = {
+		Min = 8,
+		Max = 24,
+		Default = 14
+	},
+	Callback = function(espTextSize)
+		flySpeedData.espTextSize = espTextSize
+		handleHeartbeatConnection()
+	end
+})
+local secondarySlider = gameSettingsTab:Slider({
+	Title = findCharacterBoundary("Highlight Transparency", sliderData.Primary, sliderData.Text),
+	Desc = "Adjust transparency of ESP highlights",
+	Step = 0.05,
+	Value = {
+		Min = 0,
+		Max = 1,
+		Default = 0.5
+	},
+	Callback = function(highlightTransparency)
+		flySpeedData.highlightTransparency = highlightTransparency
+		handleHeartbeatConnection()
+	end
+})
+local alternateSlider = gameSettingsTab:Slider({
+	Title = findCharacterBoundary("Highlight Outline", sliderData.Primary, sliderData.Text),
+	Desc = "Adjust outline thickness of ESP highlights",
+	Step = 0.05,
+	Value = {
+		Min = 0,
+		Max = 1,
+		Default = 0
+	},
+	Callback = function(highlightOutlineTransparency)
+		flySpeedData.highlightOutlineTransparency = highlightOutlineTransparency
+		handleHeartbeatConnection()
+	end
+})
+
+gameSettingsTab:Divider({
+	Title = findCharacterBoundary("CONFIGURATION SYSTEM", sliderData.Primary, sliderData.Text)
+})
+gameSettingsTab:Section({
+	Title = findCharacterBoundary("CONFIG MANAGEMENT", sliderData.Primary, sliderData.Text)
+})
+gameSettingsTab:Button({
+	Title = findCharacterBoundary("Save Configuration", sliderData.Primary, sliderData.Accent),
+	Desc = "Save current settings to config",
+	Icon = "save",
+	Callback = function()
+		config:Save()
+		windUi:Notify({
+			Title = "Configuration",
+			Content = "Settings saved successfully!",
+			Duration = 3
+		})
+	end
+})
+gameSettingsTab:Button({
+	Title = findCharacterBoundary("Load Configuration", sliderData.Primary, sliderData.Accent),
+	Desc = "Load settings from config",
+	Icon = "download",
+	Callback = function()
+		config:Load()
+		windUi:Notify({
+			Title = "Configuration",
+			Content = "Settings loaded successfully!",
+			Duration = 3
+		})
+	end
+})
+gameSettingsTab:Button({
+	Title = findCharacterBoundary("Reset Configuration", sliderData.Primary, sliderData.Accent),
+	Desc = "Reset to default settings",
+	Icon = "refresh-cw",
+	Callback = function()
+		flySpeedData.espTextSize = 14
+		flySpeedData.highlightTransparency = 0.5
+		flySpeedData.highlightOutlineTransparency = 0
+		slider:Set(14)
+		secondarySlider:Set(0.5)
+		alternateSlider:Set(0)
+		handleHeartbeatConnection()
+		windUi:Notify({
+			Title = "Configuration",
+			Content = "Settings reset to default!",
+			Duration = 3
+		})
+	end
+})
+serverTab:Divider({
+	Title = findCharacterBoundary("SERVER FUNCTIONS", sliderData.Primary, sliderData.Text)
+})
+serverTab:Section({
+	Title = findCharacterBoundary("SERVER MANAGEMENT", sliderData.Primary, sliderData.Text)
+})
+serverTab:Button({
+	Title = findCharacterBoundary("Rejoin to Server", sliderData.Primary, sliderData.Accent),
+	Desc = "Reconnect to the current game server",
+	Icon = "refresh-cw",
+	Callback = function()
+		local ok, result = pcall(function()
+			game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, game.Players.LocalPlayer)
+		end)
+
+		if not ok then
+			windUi:Notify({
+				Title = "Error",
+				Content = "Failed to rejoin server: " .. tostring(result),
+				Duration = 5,
+				Type = "error"
+			})
+		end
+	end
+})
+serverTab:Button({
+	Title = findCharacterBoundary("Server Hop", sliderData.Primary, sliderData.Accent),
+	Desc = "Join a random server for this game",
+	Icon = "shuffle",
+	Callback = function()
+		windUi:Notify({
+			Title = "Server Hop",
+			Content = "Searching for random server...",
+			Duration = 3
+		})
+
+		local games = (function()
+			local ok, result = pcall(function()
+				return game:GetService("HttpService"):JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+			end)
+
+			if ok and result and result.data then
+				local vs = {}
+
+				for _, item in ipairs(result.data) do
+					if item.playing < item.maxPlayers and item.id ~= game.JobId then
+						table.insert(vs, item)
+					end
+				end
+
+				if #vs > 0 then
+					return vs[math.random(1, #vs)].id
+				end
+			end
+
+			return nil
+		end)()
+
+		if not games then
+			windUi:Notify({
+				Title = "Error",
+				Content = "No available servers found",
+				Duration = 5,
+				Type = "error"
+			})
+		else
+			game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, games, game.Players.LocalPlayer)
+		end
+	end
+})
+serverTab:Button({
+	Title = findCharacterBoundary("Teleport to Smaller Server", sliderData.Primary, sliderData.Accent),
+	Desc = "Join a server with fewer players",
+	Icon = "users",
+	Callback = function()
+		windUi:Notify({
+			Title = "Server Search",
+			Content = "Looking for server with fewer players...",
+			Duration = 3
+		})
+
+		local games = (function()
+			local ok, result = pcall(function()
+				return game:GetService("HttpService"):JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"))
+			end)
+
+			if ok and result and result.data then
+				table.sort(result.data, function(playingArgument, secondaryArgument)
+					return playingArgument.playing < secondaryArgument.playing
+				end)
+
+				local secondaryResult = #game.Players:GetPlayers()
+
+				for _, item in ipairs(result.data) do
+					if secondaryResult > item.playing and item.id ~= game.JobId and item.playing > 0 then
+						return item.id
+					end
+				end
+
+				for _, item in ipairs(result.data) do
+					if item.id ~= game.JobId and item.playing > 0 then
+						return item.id
+					end
+				end
+			end
+
+			return nil
+		end)()
+
+		if not games then
+			windUi:Notify({
+				Title = "Error",
+				Content = "No suitable servers found",
+				Duration = 5,
+				Type = "error"
+			})
+		else
+			game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, games, game.Players.LocalPlayer)
+		end
+	end
+})
+serverTab:Divider({
+	Title = findCharacterBoundary("SERVER INFO", sliderData.Primary, sliderData.Text)
+})
+serverTab:Section({
+	Title = findCharacterBoundary("CURRENT SERVER", sliderData.Primary, sliderData.Text)
+})
+
+local fallbackParagraph = serverTab:Paragraph({
+	Title = findCharacterBoundary("Server ID: " .. game.JobId, sliderData.Primary, sliderData.Text),
+	Desc = "Current server information",
+	Image = "server",
+	ImageSize = 20,
+	Color = "White"
+})
+local nestedParagraph = serverTab:Paragraph({
+	Title = findCharacterBoundary("Players: " .. #game.Players:GetPlayers() .. "/" .. game.Players.MaxPlayers, sliderData.Primary, sliderData.Text),
+	Desc = "Current player count",
+	Image = "users",
+	ImageSize = 20,
+	Color = "White"
+})
+
+local function callback()
+	fallbackParagraph:SetTitle(findCharacterBoundary("Server ID: " .. game.JobId, sliderData.Primary, sliderData.Text))
+	nestedParagraph:SetTitle(findCharacterBoundary("Players: " .. #game.Players:GetPlayers() .. "/" .. game.Players.MaxPlayers, sliderData.Primary, sliderData.Text))
+end
+
+spawn(function()
+	while wait(10) do
+		callback()
+	end
+end)
+serverTab:Button({
+	Title = findCharacterBoundary("Refresh Server Info", sliderData.Primary, sliderData.Accent),
+	Desc = "Update current server information",
+	Icon = "refresh-cw",
+	Callback = callback
+})
+
+
+game:GetService("TeleportService").TeleportInitFailed:Connect(function(_, _, displayValue)
+	windUi:Notify({
+		Title = "Teleport Failed",
+		Content = "Reason: " .. tostring(displayValue),
+		Duration = 5,
+		Type = "error"
+	})
+end)
+game:GetService("TeleportService").LocalPlayerTeleportFailed:Connect(function(_, displayValue)
+	windUi:Notify({
+		Title = "Teleport Failed",
+		Content = "Reason: " .. tostring(displayValue),
+		Duration = 5,
+		Type = "error"
+	})
+end)
+config:Register("EspTextSize", slider)
+config:Register("HighlightTransparency", secondarySlider)
+config:Register("HighlightOutline", alternateSlider)
+
+for k, item in pairs({}) do
+	config:Register(k, item)
+end
+
+config:Register("NoclipToggle", characterTab:FindFirstChild("NoclipToggle"))
+config:Register("InfiniteJumpToggle", characterTab:FindFirstChild("InfiniteJumpToggle"))
+config:Register("FlyToggle", characterTab:FindFirstChild("FlyToggle"))
+config:Register("InfiniteStaminaToggle", characterTab:FindFirstChild("InfiniteStaminaToggle"))
+config:Register("AntiStunToggle", characterTab:FindFirstChild("AntiStunToggle"))
+config:Register("AntiSlowToggle", characterTab:FindFirstChild("AntiSlowToggle"))
+config:Register("AutoRepairToggle", survivorTab:FindFirstChild("AutoRepairToggle"))
+config:Register("AutoFriedChickenToggle", survivorTab:FindFirstChild("AutoFriedChickenToggle"))
+config:Register("AutoCoinFlipToggle", survivorTab:FindFirstChild("AutoCoinFlipToggle"))
+config:Register("AutoCloneToggle", survivorTab:FindFirstChild("AutoCloneToggle"))
+config:Register("AutoBlockToggle", survivorTab:FindFirstChild("AutoBlockToggle"))
+config:Register("KillAllToggle", killerTab:FindFirstChild("KillAllToggle"))
+config:Register("TeleportModeToggle", killerTab:FindFirstChild("TeleportModeToggle"))
+config:Register("KillerAuraToggle", killerTab:FindFirstChild("KillerAuraToggle"))
+config:Register("SlashAuraToggle", killerTab:FindFirstChild("SlashAuraToggle"))
+
+for k, _ in pairs(noliData) do
+	local text = k .. "AimbotToggle"
+
+	config:Register(text, aimbotTab:FindFirstChild(text))
+end
+
+task.wait(1)
+config:Load()
